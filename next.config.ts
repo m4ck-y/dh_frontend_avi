@@ -1,9 +1,18 @@
 import type { NextConfig } from "next";
+import withSerwistInit from "@serwist/next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
 };
 
-export default nextConfig;
+const withSerwist = withSerwistInit({
+  swSrc: "src/sw.ts",
+  swDest: "public/sw.js",
+  reloadOnOnline: true,
+  // `@serwist/next` hooks webpack; disable under Turbopack (dev) and build with
+  // `next build --webpack`. Migrate to `@serwist/turbopack` when it stabilizes.
+  disable: process.env.NODE_ENV !== "production",
+});
+
+export default withSerwist(nextConfig);

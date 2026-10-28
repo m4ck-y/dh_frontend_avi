@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AVI — dh_frontend_avi
 
-## Getting Started
+AI assistant/agent PWA for LiberSalus: chat, voice, and instruction execution
+with context scoped by identity. This is the **only Next.js micro-frontend** in
+the monorepo; the rest (landing, signin, signup, app) use Vite + React 19.
 
-First, run the development server:
+**Status:** shell — UI and mock interactions only, no `dh_avi` service or real AI.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Scope
+
+- Next.js (App Router) is used **only here**, as a deliberate exception. The
+  Vite conventions still govern the other micro-frontends.
+- AVI-specific adaptations of those conventions live in this README, not in the
+  shared `frontend/docs/`.
+
+## Stack
+
+- Next.js 16 (App Router) + TypeScript + React 19.
+- PWA: Serwist (`@serwist/next`) + `app/manifest.ts`.
+- CSS Modules (no Tailwind) + `@/` path alias.
+
+## Architecture (DDD)
+
+```
+src/
+├── app/              # routes (App Router)
+├── domain/           # types + repository interface (no framework deps)
+├── application/      # AviService
+├── infrastructure/   # MockAviRepository + composition root
+├── presentation/     # AviApp (components)
+├── shared/           # mock data
+└── sw.ts             # service worker (Serwist)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Adaptations vs the Vite conventions
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Vite rule | Next.js equivalent |
+|---|---|
+| `VITE_*` env vars | `NEXT_PUBLIC_*` |
+| `vite.config.ts` base path | `next.config.ts` `basePath` |
+| react-router / `ROUTE_PATHS` | App Router folders |
+| `index.html` no-cache meta | `<meta http-equiv>` in root layout |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Pending
 
-## Learn More
+- Deploy mode: `output: 'export'` (static) vs Node runtime — undecided.
+- No-cache HTTP header location (nginx vs `headers()`), depends on the above.
 
-To learn more about Next.js, take a look at the following resources:
+## Run
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run dev     # http://localhost:3005 (Turbopack; service worker disabled)
+npm run build   # next build --webpack (generates sw.js)
+npm run start   # serves the production build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Docs
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `docs/FLOW.md` — navigation flow (Mermaid).
+- `docs/SCREENS.md` — screens, fields, ASCII wireframes.
