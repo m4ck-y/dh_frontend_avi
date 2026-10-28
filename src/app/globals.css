@@ -1,33 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* true-black-flat — tokens del taste skill */
-  --ground: #000000;
-  --surface: #111111;
-  --raised: #2a2a2a;
-  --border: #1a1a1a;
-  --rule: #161616;
-  --control: #444444;
-  --text: #ffffff;
-  --muted: #b4b4b4;
-  --faint: #949494;
-  --accent: #c6f24e;
-  --positive: #c6f24e;
-  --negative: #e5484d;
+  --background: #05060a;
+  --foreground: #eef1f5;
+  --muted: #a3abb8;
+  --accent: #2dd4bf;
+  --accent-strong: #14b8a6;
+  --border: rgba(255, 255, 255, 0.1);
 
-  --radius-card: 20px;
-  --radius-control: 999px;
-  --gap: 14px;
-  --pad: 22px;
-  --control-height: 36px;
+  /* glass system */
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-strong: rgba(255, 255, 255, 0.09);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-highlight: rgba(255, 255, 255, 0.18);
+  --accent-soft: rgba(45, 212, 191, 0.14);
+  --accent-glow: rgba(45, 212, 191, 0.35);
+  --blur: 18px;
 
-  --fs-title: 20px;
-  --fs-section: 16px;
-  --fs-kpi: 24px;
-  --fs-body: 14px;
-  --fs-small: 12px;
-
-  --font: "Inter", system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 html,
@@ -38,14 +28,24 @@ body {
 
 body {
   min-height: 100vh;
-  color: var(--text);
-  background: var(--ground);
-  font-family: var(--font);
-  font-size: var(--fs-body);
-  font-weight: 400;
-  line-height: 1.5;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Orbes de luz detrás del cristal — sin esto el blur no se percibe */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38rem 38rem at 10% -8%, rgba(20, 184, 166, 0.22), transparent 62%),
+    radial-gradient(34rem 34rem at 108% 108%, rgba(56, 120, 255, 0.18), transparent 62%),
+    radial-gradient(28rem 28rem at 78% 18%, rgba(168, 85, 247, 0.1), transparent 68%);
 }
 
 * {
@@ -59,6 +59,27 @@ a {
   text-decoration: none;
 }
 
+::selection {
+  background: var(--accent-soft);
+  color: var(--foreground);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .num {
   font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

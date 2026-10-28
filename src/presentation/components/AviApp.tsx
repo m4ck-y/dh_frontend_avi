@@ -4,14 +4,57 @@ import { useEffect, useRef, useState } from "react";
 import type { Message, Role, View } from "@/domain/types";
 import { aviService } from "@/infrastructure";
 import { CONTEXT_TIERS, HISTORY, ROLE_KEYS, ROLES, SUGGESTIONS } from "@/shared/mock/avi";
-import Face, { type Mood } from "./Face";
+import Face, { EXPRESSIONS, type Expression, type Mood } from "./Face";
+import Waveform from "./Waveform";
 import styles from "./AviApp.module.css";
 
-const NAV: { key: View; label: string }[] = [
-  { key: "chat", label: "Chat" },
-  { key: "history", label: "Historial" },
-  { key: "info", label: "Info" },
+const NAV: { key: View; label: string; icon: React.ReactNode }[] = [
+  {
+    key: "chat",
+    label: "Chat",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z" />
+      </svg>
+    ),
+  },
+  {
+    key: "history",
+    label: "Historial",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 3" />
+      </svg>
+    ),
+  },
+  {
+    key: "info",
+    label: "Info",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 11v5" />
+        <path d="M12 8h.01" />
+      </svg>
+    ),
+  },
 ];
+
+const STATUS: Record<Mood, string> = {
+  idle: "En línea",
+  listening: "Escuchando…",
+  thinking: "Pensando…",
+  speaking: "Hablando…",
+};
+
+const EMOTION_LABEL: Record<Expression, string> = {
+  ...STATUS,
+  joy: "Alegría",
+  anger: "Enojo",
+  sad: "Tristeza",
+  surprise: "Sorpresa",
+};
 
 let nextId = 0;
 
@@ -24,6 +67,8 @@ export default function AviApp() {
   const [pending, setPending] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showThread, setShowThread] = useState(false);
+  const [testIdx, setTestIdx] = useState(-1);
   const endRef = useRef<HTMLDivElement>(null);
 
   const mood: Mood = listening
@@ -34,6 +79,17 @@ export default function AviApp() {
         ? "speaking"
         : "idle";
   const hasConversation = messages.length > 0;
+  const expression: Expression = testIdx >= 0 ? EXPRESSIONS[testIdx] : mood;
+
+  // ciclo automático del botón "Probar expresiones"
+  useEffect(() => {
+    if (testIdx < 0) return;
+    const t = window.setTimeout(
+      () => setTestIdx((i) => (i + 1 >= EXPRESSIONS.length ? -1 : i + 1)),
+      1400,
+    );
+    return () => window.clearTimeout(t);
+  }, [testIdx]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -56,6 +112,7 @@ export default function AviApp() {
     if (!trimmed) return;
     pushMessage(trimmed, "user");
     setInput("");
+    setShowThread(true);
     setPending(true);
     void aviService.reply(role, trimmed).then((reply) => {
       setPending(false);
@@ -78,164 +135,228 @@ export default function AviApp() {
   }
 
   function toggleMic() {
-    setListening((v) => !v);
-    if (!listening) {
-      window.setTimeout(() => {
-        setListening(false);
-        setInput((v) => (v || "» dictado de ejemplo (mock)"));
-      }, 1200);
+    if (listening) {
+      setListening(false);
+      // al terminar el dictado se envía (mock) y el ciclo sigue a thinking/speaking
+      send("» dictado de ejemplo (mock)");
+      return;
     }
+    // el mic queda encendido hasta que el usuario lo apague:
+    // así la onda refleja el sonido real mientras se le habla
+    setListening(true);
   }
 
   return (
     <div className={styles.shell}>
-      <header className={styles.header}>
-        <div className={styles.brand}>
-          <span className={styles.dot} />
-          AVI
-        </div>
-
-        <div className={styles.controls}>
-          <label className={styles.field}>
-            <span className={styles.fieldLabel}>Identidad</span>
-            <select
-              className={styles.select}
-              value={role}
-              onChange={(e) => changeRole(e.target.value as Role)}
-            >
-              {ROLE_KEYS.map((k) => (
-                <option key={k} value={k}>
-                  {ROLES[k].label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <button
-            type="button"
-            className={styles.iconButton}
-            onClick={toggleFullscreen}
-            title="Pantalla completa (inmersivo)"
-          >
-            {isFullscreen ? "Salir" : "Inmersivo"}
-          </button>
-        </div>
-      </header>
-
-      <nav className={styles.nav}>
+      <nav className={styles.rail} aria-label="Secciones">
         {NAV.map((n) => (
           <button
             key={n.key}
             type="button"
-            className={`${styles.navItem} ${view === n.key ? styles.navItemActive : ""}`}
+            className={`${styles.railItem} ${view === n.key ? styles.railItemActive : ""}`}
             onClick={() => setView(n.key)}
+            aria-current={view === n.key ? "page" : undefined}
+            title={n.label}
           >
-            {n.label}
+            {n.icon}
+            <span className={styles.railLabel}>{n.label}</span>
           </button>
         ))}
       </nav>
 
-      {view === "chat" && (
-        <>
-          <div className={styles.context}>
-            Contexto · {ROLES[role].label}: <strong>{ROLES[role].context}</strong>
+      <div className={styles.main}>
+        <header className={styles.header}>
+          <div className={styles.headLeft}>
+            <h1 className={styles.brand}>
+              <span className={styles.dot} />
+              AVI
+            </h1>
+            <span className={styles.tagline}>asistente de salud</span>
           </div>
 
-          {hasConversation ? (
-            <>
-              <div className={styles.faceBar}>
-                <Face mood={mood} size={140} />
+          <div className={styles.controls}>
+            <label className={styles.field}>
+              <span className={styles.fieldLabel}>Identidad</span>
+              <select
+                className={styles.select}
+                value={role}
+                onChange={(e) => changeRole(e.target.value as Role)}
+              >
+                {ROLE_KEYS.map((k) => (
+                  <option key={k} value={k}>
+                    {ROLES[k].label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <button
+              type="button"
+              className={styles.iconButton}
+              onClick={toggleFullscreen}
+              aria-pressed={isFullscreen}
+              title="Pantalla completa (inmersivo)"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                {isFullscreen ? (
+                  <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+                ) : (
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                )}
+              </svg>
+              <span>{isFullscreen ? "Salir" : "Inmersivo"}</span>
+            </button>
+          </div>
+        </header>
+
+        {view === "chat" && (
+          <>
+            <div className={styles.stage}>
+              <div className={styles.stageGlow} aria-hidden="true" />
+              <div className={styles.stageFace}>
+                <Face expression={expression} />
               </div>
-              <main className={styles.thread}>
+              {testIdx < 0 && (
+                <span className={styles.presenceStatus} data-mood={mood}>
+                  {STATUS[mood]}
+                </span>
+              )}
+              <Waveform mood={mood} micOn={listening} />
+              {testIdx >= 0 && (
+                <button
+                  type="button"
+                  className={styles.chip}
+                  onClick={() => setTestIdx(-1)}
+                  aria-label="Detener prueba de expresiones"
+                >
+                  {EMOTION_LABEL[expression]} · detener
+                </button>
+              )}
+              {!hasConversation && (
+                <>
+                  <h2 className={styles.heroTitle}>Hola, soy AVI</h2>
+                  <p className={styles.heroHint}>
+                    Toca el micrófono y háblame, o escribe abajo. {ROLES[role].context}
+                  </p>
+                </>
+              )}
+            </div>
+
+            {showThread && hasConversation && (
+              <main className={styles.thread} aria-live="polite" aria-label="Conversación con AVI">
                 {messages.map((m) => (
                   <div
                     key={m.id}
                     className={`${styles.msg} ${m.author === "user" ? styles.user : styles.avi}`}
                   >
-                    <p className={styles.msgAuthor}>
-                      {m.author === "user" ? "Tú" : "AVI"}
-                    </p>
+                    <p className={styles.msgAuthor}>{m.author === "user" ? "Tú" : "AVI"}</p>
                     <p className={styles.msgText}>{m.text}</p>
                   </div>
                 ))}
-                {listening && <div className={styles.listening}>Escuchando…</div>}
                 <div ref={endRef} />
               </main>
-            </>
-          ) : (
-            <div className={styles.faceHero}>
-              <Face mood={mood} size={320} />
-              <p className={styles.faceHint}>Hola, soy AVI — háblame o escribe.</p>
-            </div>
-          )}
+            )}
 
-          <div className={styles.suggestions}>
-            {SUGGESTIONS[role].map((s) => (
-              <button key={s} type="button" className={styles.chip} onClick={() => send(s)}>
-                {s}
+            <div className={styles.actions}>
+              <button
+                type="button"
+                className={`${styles.bigMic} ${listening ? styles.bigMicActive : ""}`}
+                onClick={toggleMic}
+                aria-label={listening ? "Detener dictado" : "Hablar con AVI"}
+                aria-pressed={listening}
+              >
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <rect x="9" y="2" width="6" height="12" rx="3" />
+                  <path d="M5 10a7 7 0 0 0 14 0" />
+                  <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
               </button>
-            ))}
-          </div>
+              <span className={styles.actionsHint}>
+                {listening ? "Escuchando — toca para terminar" : "Toca para hablar"}
+              </span>
+            </div>
 
-          <footer className={styles.composer}>
-            <button
-              type="button"
-              className={`${styles.mic} ${listening ? styles.micActive : ""}`}
-              onClick={toggleMic}
-              aria-label={listening ? "Detener dictado" : "Iniciar dictado"}
-            >
-              {listening ? "●" : "○"}
-            </button>
-            <input
-              className={styles.input}
-              value={input}
-              placeholder="Escribe o dicta una instrucción…"
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") send(input);
-              }}
-            />
-            <button type="button" className={styles.send} onClick={() => send(input)}>
-              Enviar
-            </button>
-          </footer>
-        </>
-      )}
+            <div className={styles.suggestions} aria-label="Sugerencias">
+              <button
+                type="button"
+                className={styles.chip}
+                onClick={() => setTestIdx(testIdx < 0 ? 0 : -1)}
+                aria-pressed={testIdx >= 0}
+              >
+                {testIdx >= 0 ? "Detener prueba" : "Probar expresiones"}
+              </button>
+              {SUGGESTIONS[role].map((s) => (
+                <button key={s} type="button" className={styles.chip} onClick={() => send(s)}>
+                  {s}
+                </button>
+              ))}
+            </div>
 
-      {view === "history" && (
-        <main className={styles.panel}>
-          <h2 className={styles.panelTitle}>Historial de conversaciones</h2>
-          <ul className={styles.list}>
-            {HISTORY.map((h) => (
-              <li key={h.id} className={styles.listItem}>
-                <span className={styles.listTitle}>{h.title}</span>
-                <span className={styles.listMeta}>{h.when}</span>
-              </li>
-            ))}
-          </ul>
-          <p className={styles.note}>Lista estática de ejemplo (sin backend).</p>
-        </main>
-      )}
+            <footer className={styles.composer}>
+              {hasConversation && (
+                <button
+                  type="button"
+                  className={`${styles.threadToggle} ${showThread ? styles.threadToggleActive : ""}`}
+                  onClick={() => setShowThread((v) => !v)}
+                  aria-expanded={showThread}
+                  aria-label={showThread ? "Ocultar conversación" : "Ver conversación"}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z" />
+                  </svg>
+                </button>
+              )}
+              <input
+                className={styles.input}
+                value={input}
+                placeholder="…o escribe una instrucción"
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") send(input);
+                }}
+              />
+              <button type="button" className={styles.send} onClick={() => send(input)}>
+                Enviar
+              </button>
+            </footer>
+          </>
+        )}
 
-      {view === "info" && (
-        <main className={styles.panel}>
-          <h2 className={styles.panelTitle}>Contexto por identidad</h2>
-          <ul className={styles.list}>
-            {CONTEXT_TIERS.map((t) => (
-              <li key={t.level} className={styles.listItem}>
-                <span className={styles.listTitle}>
-                  Nivel {t.level} · {t.who}
-                </span>
-                <span className={styles.listMeta}>{t.what}</span>
-              </li>
-            ))}
-          </ul>
-          <p className={styles.note}>
-            Superficies: embebido (landing · dashboard · tami · admin) · inmersivo{" "}
-            <code>avi.libersalus.dev</code> · app nativa AVI · SO por voz.
-          </p>
-        </main>
-      )}
+        {view === "history" && (
+          <main className={styles.panel} aria-label="Historial de conversaciones">
+            <h2 className={styles.panelTitle}>Historial de conversaciones</h2>
+            <ul className={styles.list}>
+              {HISTORY.map((h) => (
+                <li key={h.id} className={styles.listItem}>
+                  <span className={styles.listTitle}>{h.title}</span>
+                  <span className={styles.listMeta}>{h.when}</span>
+                </li>
+              ))}
+            </ul>
+            <p className={styles.note}>Lista estática de ejemplo (sin backend).</p>
+          </main>
+        )}
+
+        {view === "info" && (
+          <main className={styles.panel} aria-label="Contexto por identidad">
+            <h2 className={styles.panelTitle}>Contexto por identidad</h2>
+            <ul className={styles.list}>
+              {CONTEXT_TIERS.map((t) => (
+                <li key={t.level} className={styles.listItem}>
+                  <span className={styles.listTitle}>
+                    Nivel {t.level} · {t.who}
+                  </span>
+                  <span className={styles.listMeta}>{t.what}</span>
+                </li>
+              ))}
+            </ul>
+            <p className={styles.note}>
+              Superficies: embebido (landing · dashboard · tami · admin) · inmersivo{" "}
+              <code>avi.libersalus.dev</code> · app nativa AVI · SO por voz.
+            </p>
+          </main>
+        )}
+      </div>
     </div>
   );
 }
