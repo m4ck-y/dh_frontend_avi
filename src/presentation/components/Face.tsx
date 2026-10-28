@@ -612,8 +612,8 @@ export default function Face({
           })}
         </defs>
 
-        {/* Capa de expresión con transiciones suaves sin destrucción de DOM */}
-        <g className={styles.faceElements}>
+        {/* Capa de expresión con crossfade al cambiar de expresión */}
+        <g key={expression} className={styles.faceElements}>
           {/* Cejas Anime con transición */}
           <AnimeBrows expression={expression} />
 

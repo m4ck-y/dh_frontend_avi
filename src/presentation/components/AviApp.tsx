@@ -89,6 +89,7 @@ export default function AviApp() {
   const lastPokeTime = useRef(0);
   const pokeTimer = useRef<number | null>(null);
   const inactivityTimer = useRef<number | null>(null);
+  const hasConversationRef = useRef(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   const mood: Mood = listening
@@ -103,6 +104,12 @@ export default function AviApp() {
   const hasConversation = messages.length > 0;
   const expression: Expression = manualExpression ?? mood;
 
+  // Mantener el valor actual en un ref para que el effect de inactividad
+  // (montado una sola vez) no duerma a AVI si hay conversación activa.
+  useEffect(() => {
+    hasConversationRef.current = hasConversation;
+  }, [hasConversation]);
+
   // Detección de inactividad para dormir y seguimiento suave del puntero del mouse
   useEffect(() => {
     let animId = 0;
@@ -115,9 +122,9 @@ export default function AviApp() {
       }
       setIsSleeping(false);
 
-      // Si no hay conversación activa, duerme tras 14 segundos de inactividad
+      // Duerme tras 14 s de inactividad solo si no hay conversación activa
       inactivityTimer.current = window.setTimeout(() => {
-        setIsSleeping(true);
+        if (!hasConversationRef.current) setIsSleeping(true);
       }, 14000);
     }
 

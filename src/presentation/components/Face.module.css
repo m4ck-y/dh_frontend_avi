@@ -124,6 +124,16 @@
 .faceElements {
   transform-origin: center;
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: expressionFade 0.2s ease-out;
+}
+
+@keyframes expressionFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .brows,
@@ -150,10 +160,10 @@
 /* Párpados y pestañas */
 .upperLash,
 .eyelidCrease {
-  transition: d 0.3s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.3s ease;
+  transition: stroke 0.3s ease;
 }
 
-/* Ojos respirando y parpadeando */
+/* Ojos respirando (translateY en el contenedor) y parpadeando (scaleY en el ojo) */
 .eyeL,
 .eyeR {
   transform-box: fill-box;
@@ -166,11 +176,19 @@
 .face[data-expression="speaking"] .eyeR,
 .face[data-expression="listening"] .eyeL,
 .face[data-expression="listening"] .eyeR {
-  animation: breathe 5s ease-in-out infinite, blink 4.6s infinite;
+  animation: breathe 5s ease-in-out infinite;
 }
 
 .eyeR {
-  animation-delay: 0.1s, 0s;
+  animation-delay: 0.1s;
+}
+
+.face[data-expression="idle"] .openEye,
+.face[data-expression="speaking"] .openEye,
+.face[data-expression="listening"] .openEye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blink 4.6s infinite;
 }
 
 @keyframes breathe {
