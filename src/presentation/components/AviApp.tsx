@@ -46,15 +46,24 @@ const STATUS: Record<Mood, string> = {
   listening: "Escuchando…",
   thinking: "Pensando…",
   speaking: "Hablando…",
+  sleeping: "Durmiendo… 💤 (mueve el mouse)",
 };
 
 const EMOTION_LABEL: Record<Expression, string> = {
   ...STATUS,
   joy: "Alegría",
   anger: "Enojo",
+  annoyed: "Molesta 💢",
   sad: "Tristeza",
   surprise: "Sorpresa",
 };
+
+const ANNOYED_LINES = [
+  "¡Oye, no me piques tanto! >_<",
+  "¡Eso hace cosquillas, ya basta! 💢",
+  "¡Ouch! ¿Por qué tantos clics? (｀ε´)",
+  "¡Déjame en paz un ratito! 😤",
+];
 
 let nextId = 0;
 
@@ -70,6 +79,16 @@ export default function AviApp() {
   const [showThread, setShowThread] = useState(false);
   const [manualExpression, setManualExpression] = useState<Expression | null>(null);
   const [autoCycle, setAutoCycle] = useState(false);
+
+  // Estados interactivos estilo avatar lab
+  const [pointer, setPointer] = useState({ x: 0, y: 0 });
+  const [isSleeping, setIsSleeping] = useState(false);
+  const [pokeCount, setPokeCount] = useState(0);
+  const [pokeMessage, setPokeMessage] = useState<string | null>(null);
+
+  const lastPokeTime = useRef(0);
+  const pokeTimer = useRef<number | null>(null);
+  const inactivityTimer = useRef<number | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   const mood: Mood = listening
@@ -78,9 +97,62 @@ export default function AviApp() {
       ? "thinking"
       : speaking
         ? "speaking"
-        : "idle";
+        : isSleeping
+          ? "sleeping"
+          : "idle";
   const hasConversation = messages.length > 0;
   const expression: Expression = manualExpression ?? mood;
+
+  // Detección de inactividad para dormir y seguimiento suave del puntero del mouse
+  useEffect(() => {
+    let animId = 0;
+    let pendingX = 0;
+    let pendingY = 0;
+
+    function resetInactivity() {
+      if (inactivityTimer.current) {
+        window.clearTimeout(inactivityTimer.current);
+      }
+      setIsSleeping(false);
+
+      // Si no hay conversación activa, duerme tras 14 segundos de inactividad
+      inactivityTimer.current = window.setTimeout(() => {
+        setIsSleeping(true);
+      }, 14000);
+    }
+
+    function onPointerMove(e: PointerEvent) {
+      resetInactivity();
+      pendingX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+      pendingY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+
+      pendingX = Math.max(-1, Math.min(1, pendingX));
+      pendingY = Math.max(-1, Math.min(1, pendingY));
+
+      cancelAnimationFrame(animId);
+      animId = requestAnimationFrame(() => {
+        setPointer({ x: pendingX, y: pendingY });
+      });
+    }
+
+    function onUserInteraction() {
+      resetInactivity();
+    }
+
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("keydown", onUserInteraction, { passive: true });
+    window.addEventListener("click", onUserInteraction, { passive: true });
+
+    resetInactivity();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("keydown", onUserInteraction);
+      window.removeEventListener("click", onUserInteraction);
+      if (inactivityTimer.current) window.clearTimeout(inactivityTimer.current);
+    };
+  }, []);
 
   // Ciclo automático para previsualizar todas las expresiones anime
   useEffect(() => {
@@ -106,6 +178,43 @@ export default function AviApp() {
     document.addEventListener("fullscreenchange", onFs);
     return () => document.removeEventListener("fullscreenchange", onFs);
   }, []);
+
+  // Interacción al tocar / hacer clics repetidos en AVI
+  function handleFaceClick() {
+    setIsSleeping(false);
+    const now = Date.now();
+    const isRapid = now - lastPokeTime.current < 2200;
+    lastPokeTime.current = now;
+
+    const nextCount = isRapid ? pokeCount + 1 : 1;
+    setPokeCount(nextCount);
+
+    if (pokeTimer.current) window.clearTimeout(pokeTimer.current);
+
+    if (nextCount === 1) {
+      setPokeMessage("✨ ¡Hola!");
+      pokeTimer.current = window.setTimeout(() => {
+        setPokeMessage(null);
+        setPokeCount(0);
+      }, 1500);
+    } else if (nextCount === 2 || nextCount === 3) {
+      setPokeMessage("¿Eh? ¿Por qué me tocas?");
+      pokeTimer.current = window.setTimeout(() => {
+        setPokeMessage(null);
+        setPokeCount(0);
+      }, 2000);
+    } else {
+      // 4 o más clics rápidos: AVI se molesta con puchero y marca 💢
+      const randomLine = ANNOYED_LINES[Math.floor(Math.random() * ANNOYED_LINES.length)];
+      setManualExpression("annoyed");
+      setPokeMessage(randomLine);
+      pokeTimer.current = window.setTimeout(() => {
+        setManualExpression(null);
+        setPokeMessage(null);
+        setPokeCount(0);
+      }, 3800);
+    }
+  }
 
   function pushMessage(text: string, author: "user" | "avi") {
     setMessages((prev) => [...prev, { id: nextId++, author, text }]);
@@ -221,7 +330,13 @@ export default function AviApp() {
             <div className={styles.stage}>
               <div className={styles.stageGlow} aria-hidden="true" />
               <div className={styles.stageFace}>
-                <Face expression={expression} />
+                <Face
+                  expression={expression}
+                  pointer={pointer}
+                  pokeCount={pokeCount}
+                  pokeMessage={pokeMessage}
+                  onFaceClick={handleFaceClick}
+                />
               </div>
               <div className={styles.presenceMeta}>
                 <span className={styles.presenceStatus} data-mood={expression}>

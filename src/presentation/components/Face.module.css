@@ -1,4 +1,76 @@
-/* AVI Anime Facial Visage — Estilo Manga / Anime con renderizado vectorial de alta fidelidad */
+/* AVI Anime Facial Visage — Sistema de interacción procedural y fluida */
+
+.faceWrapper {
+  position: relative;
+  display: block;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+}
+
+.faceWrapper:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 8px;
+  border-radius: 16px;
+}
+
+/* Globo de reacción divertida al picar/tocar a AVI */
+.pokeBubble {
+  position: absolute;
+  top: -38px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid rgba(255, 75, 110, 0.6);
+  box-shadow: 0 4px 20px rgba(255, 75, 110, 0.35);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+  animation: popBubble 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.bubbleTail {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid rgba(15, 23, 42, 0.94);
+}
+
+@keyframes popBubble {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+/* Sacudida al enfadarse por exceso de clics */
+.shaking {
+  animation: animeHalt 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes animeHalt {
+  10%, 90% { transform: perspective(700px) translate3d(-2px, 0, 0); }
+  20%, 80% { transform: perspective(700px) translate3d(3px, 0, 0); }
+  30%, 50%, 70% { transform: perspective(700px) translate3d(-4px, 0, 0); }
+  40%, 60% { transform: perspective(700px) translate3d(4px, 0, 0); }
+}
 
 .face {
   display: block;
@@ -6,11 +78,11 @@
   height: auto;
   overflow: visible;
   color: var(--accent);
-  transition: color 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+  transition: color 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.45s ease;
   filter: drop-shadow(0 0 20px var(--accent-glow));
 }
 
-/* Colores de acento por emoción */
+/* Colores por emoción */
 .face[data-expression="idle"],
 .face[data-expression="listening"],
 .face[data-expression="thinking"],
@@ -23,9 +95,19 @@
   filter: drop-shadow(0 0 24px rgba(255, 209, 102, 0.45));
 }
 
+.face[data-expression="surprise"] {
+  color: #c792ea;
+  filter: drop-shadow(0 0 24px rgba(199, 146, 234, 0.5));
+}
+
 .face[data-expression="anger"] {
   color: #ff6b6b;
-  filter: drop-shadow(0 0 24px rgba(255, 107, 107, 0.5));
+  filter: drop-shadow(0 0 24px rgba(255, 107, 107, 0.55));
+}
+
+.face[data-expression="annoyed"] {
+  color: #ff4b6e;
+  filter: drop-shadow(0 0 26px rgba(255, 75, 110, 0.6));
 }
 
 .face[data-expression="sad"] {
@@ -33,196 +115,159 @@
   filter: drop-shadow(0 0 22px rgba(116, 167, 255, 0.45));
 }
 
-.face[data-expression="surprise"] {
-  color: #c792ea;
-  filter: drop-shadow(0 0 24px rgba(199, 146, 234, 0.5));
+.face[data-expression="sleeping"] {
+  color: #818cf8;
+  filter: drop-shadow(0 0 16px rgba(129, 140, 248, 0.35));
 }
 
-/* Animación de entrada al cambiar de emoción */
-.pop {
-  animation: popIn 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+/* Transiciones suaves entre elementos */
+.faceElements {
   transform-origin: center;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes popIn {
-  from {
-    opacity: 0.4;
-    transform: scale(0.94);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.brows,
+.mouthIdle,
+.mouthJoy,
+.mouthTalk,
+.mouthOoh,
+.mouthThinking,
+.mouthSurprise,
+.mouthAnger,
+.mouthSad,
+.mouthSleep,
+.nose {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
 }
 
-/* Cejas expresivas */
-.brows {
+/* Seguimiento dinámico de la mirada (Iris) */
+.irisGroup {
+  transform-box: fill-box;
   transform-origin: center;
-  transition: transform 0.3s ease;
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Respiración y parpadeo de ojos */
+/* Párpados y pestañas */
+.upperLash,
+.eyelidCrease {
+  transition: d 0.3s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.3s ease;
+}
+
+/* Ojos respirando y parpadeando */
 .eyeL,
 .eyeR {
   transform-box: fill-box;
   transform-origin: center;
 }
 
-/* Respiración suave anime */
 .face[data-expression="idle"] .eyeL,
 .face[data-expression="idle"] .eyeR,
 .face[data-expression="speaking"] .eyeL,
 .face[data-expression="speaking"] .eyeR,
 .face[data-expression="listening"] .eyeL,
 .face[data-expression="listening"] .eyeR {
-  animation: breathe 5s ease-in-out infinite, blink 4.8s infinite;
+  animation: breathe 5s ease-in-out infinite, blink 4.6s infinite;
 }
 
 .eyeR {
-  animation-delay: 0.12s, 0s;
-}
-
-.face[data-expression="speaking"] .eyeL,
-.face[data-expression="speaking"] .eyeR {
-  animation-duration: 4.5s, 3s;
+  animation-delay: 0.1s, 0s;
 }
 
 @keyframes breathe {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(1.8px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(1.8px); }
 }
 
-/* Parpadeo anime ágil */
 @keyframes blink {
-  0%,
-  93%,
-  100% {
-    transform: scaleY(1);
-  }
-  95% {
-    transform: scaleY(0.08);
-  }
+  0%, 93%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.08); }
 }
 
-/* Contenedor del iris: sutil micro-movimiento en reposo */
-.irisContainer {
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-.face[data-expression="idle"] .irisContainer {
-  animation: gaze 8s ease-in-out infinite;
-}
-
-@keyframes gaze {
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-  28% {
-    transform: translate(2.5px, 0.8px);
-  }
-  56% {
-    transform: translate(-2px, 1.2px);
-  }
-  80% {
-    transform: translate(1px, -0.8px);
-  }
-}
-
-/* Bocas animadas */
-.mouthTalk,
-.mouthOoh,
-.mouthSad {
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-/* Hablar con modulación anime */
+/* Boca animada hablando */
 .mouthTalk {
-  animation: animeTalk 0.26s ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: animeTalk 0.25s ease-in-out infinite alternate;
 }
 
 @keyframes animeTalk {
-  0% {
-    transform: scaleY(0.65) scaleX(0.92);
-  }
-  100% {
-    transform: scaleY(1.22) scaleX(1.05);
-  }
+  0% { transform: scaleY(0.65) scaleX(0.92); }
+  100% { transform: scaleY(1.24) scaleX(1.05); }
 }
 
-/* Boca ooh escuchando */
+/* Boca escuchando */
 .mouthOoh {
+  transform-box: fill-box;
+  transform-origin: center;
   animation: animeOoh 1.2s ease-in-out infinite;
 }
 
 @keyframes animeOoh {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.18, 0.9);
-  }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18, 0.9); }
 }
 
-/* Boca triste con temblor */
+/* Boca triste */
 .mouthSad {
+  transform-box: fill-box;
+  transform-origin: center;
   animation: tremble 1.8s ease-in-out infinite;
 }
 
 @keyframes tremble {
-  0%,
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-0.8px); }
+  45% { transform: translateY(0.8px); }
+  50% { transform: translateY(-0.4px); }
+}
+
+/* Marca de enojo anime (💢 Anger Cross Vein) */
+.angerVein {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: angerPulse 0.45s ease-in-out infinite alternate;
+}
+
+@keyframes angerPulse {
+  0% {
+    transform: translate(198px, 42px) scale(0.9) rotate(-4deg);
+    opacity: 0.85;
+  }
   100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-0.8px);
-  }
-  45% {
-    transform: translateY(0.8px);
-  }
-  50% {
-    transform: translateY(-0.4px);
+    transform: translate(198px, 42px) scale(1.2) rotate(6deg);
+    opacity: 1;
   }
 }
 
 /* Sonrojo */
-.blushGroup {
-  transition: opacity 0.4s ease;
+.blushContainer {
+  transition: opacity 0.35s ease;
 }
 
-/* Lágrimas de tristeza fluyendo */
+.blushContainer[data-expression="idle"] { opacity: 0.25; }
+.blushContainer[data-expression="listening"],
+.blushContainer[data-expression="speaking"] { opacity: 0.45; }
+.blushContainer[data-expression="thinking"] { opacity: 0.35; }
+.blushContainer[data-expression="joy"] { opacity: 0.9; }
+.blushContainer[data-expression="surprise"] { opacity: 0.4; }
+.blushContainer[data-expression="anger"] { opacity: 0.6; }
+.blushContainer[data-expression="annoyed"] { opacity: 0.85; }
+.blushContainer[data-expression="sad"] { opacity: 0.55; }
+.blushContainer[data-expression="sleeping"] { opacity: 0.35; }
+
+/* Lágrimas */
 .tearL,
 .tearR {
   animation: streamDown 2.2s ease-in infinite;
 }
 
-.tearR {
-  animation-delay: 0.65s;
-}
+.tearR { animation-delay: 0.65s; }
 
 @keyframes streamDown {
-  0% {
-    stroke-dashoffset: 60;
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.9;
-  }
-  80% {
-    opacity: 0.85;
-  }
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 0;
-  }
+  0% { opacity: 0; }
+  20% { opacity: 0.9; }
+  80% { opacity: 0.85; }
+  100% { opacity: 0; }
 }
 
 .tearDropL,
@@ -230,40 +275,82 @@
   animation: dropTear 2.2s cubic-bezier(0.4, 0, 0.8, 1) infinite;
 }
 
-.tearDropR {
-  animation-delay: 0.65s;
-}
+.tearDropR { animation-delay: 0.65s; }
 
 @keyframes dropTear {
+  0% { transform: translateY(-10px); opacity: 0; }
+  30% { opacity: 1; }
+  85% { transform: translateY(22px); opacity: 0.9; }
+  100% { transform: translateY(30px); opacity: 0; }
+}
+
+/* Estado Durmiendo (Sleeping) con Zzz flotantes */
+.face[data-expression="sleeping"] .faceElements {
+  animation: sleepSway 4.8s ease-in-out infinite;
+}
+
+@keyframes sleepSway {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(3px) rotate(1.2deg); }
+}
+
+.zzzGroup text {
+  fill: #c7d2fe;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  animation: floatZ 3.2s ease-in-out infinite;
+  opacity: 0;
+}
+
+.zzz1 {
+  font-size: 14px;
+  animation-delay: 0s;
+}
+
+.zzz2 {
+  font-size: 18px;
+  animation-delay: 0.9s;
+}
+
+.zzz3 {
+  font-size: 24px;
+  animation-delay: 1.8s;
+}
+
+@keyframes floatZ {
   0% {
-    transform: translateY(-12px);
     opacity: 0;
+    transform: translate(0, 0) scale(0.7);
   }
   30% {
-    opacity: 1;
-  }
-  85% {
-    transform: translateY(24px);
     opacity: 0.9;
   }
+  80% {
+    opacity: 0.8;
+  }
   100% {
-    transform: translateY(32px);
     opacity: 0;
+    transform: translate(16px, -28px) scale(1.15);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pop,
+  .faceWrapper,
+  .shaking,
+  .faceElements,
   .eyeL,
   .eyeR,
-  .irisContainer,
+  .irisGroup,
   .mouthTalk,
   .mouthOoh,
   .mouthSad,
+  .angerVein,
   .tearL,
   .tearR,
   .tearDropL,
-  .tearDropR {
+  .tearDropR,
+  .zzzGroup text {
     animation: none !important;
+    transition: none !important;
   }
 }
