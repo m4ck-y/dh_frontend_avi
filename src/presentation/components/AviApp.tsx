@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Message, Role, View } from "@/domain/types";
 import { aviService } from "@/infrastructure";
 import { CONTEXT_TIERS, HISTORY, ROLE_KEYS, ROLES, SUGGESTIONS } from "@/shared/mock/avi";
+import Face, { type Mood } from "./Face";
 import styles from "./AviApp.module.css";
 
 const NAV: { key: View; label: string }[] = [
@@ -17,17 +18,22 @@ let nextId = 0;
 export default function AviApp() {
   const [view, setView] = useState<View>("chat");
   const [role, setRole] = useState<Role>("anon");
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: nextId++,
-      author: "avi",
-      text: "Hola, soy AVI. Este es el esqueleto de UI: navegación e interacciones mock, sin servicios ni IA real.",
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [listening, setListening] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+
+  const mood: Mood = listening
+    ? "listening"
+    : pending
+      ? "thinking"
+      : speaking
+        ? "speaking"
+        : "idle";
+  const hasConversation = messages.length > 0;
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -50,19 +56,17 @@ export default function AviApp() {
     if (!trimmed) return;
     pushMessage(trimmed, "user");
     setInput("");
-    void aviService.reply(role, trimmed).then((reply) => pushMessage(reply, "avi"));
+    setPending(true);
+    void aviService.reply(role, trimmed).then((reply) => {
+      setPending(false);
+      pushMessage(reply, "avi");
+      setSpeaking(true);
+      window.setTimeout(() => setSpeaking(false), 1600);
+    });
   }
 
   function changeRole(next: Role) {
     setRole(next);
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: nextId++,
-        author: "avi",
-        text: `Identidad → ${ROLES[next].label}. Contexto cargado: ${ROLES[next].context}`,
-      },
-    ]);
   }
 
   function toggleFullscreen() {
@@ -138,19 +142,33 @@ export default function AviApp() {
             Contexto · {ROLES[role].label}: <strong>{ROLES[role].context}</strong>
           </div>
 
-          <main className={styles.thread}>
-            {messages.map((m) => (
-              <div
-                key={m.id}
-                className={`${styles.msg} ${m.author === "user" ? styles.user : styles.avi}`}
-              >
-                <span className={styles.msgAuthor}>{m.author === "user" ? "Tú" : "AVI"}</span>
-                <p className={styles.msgText}>{m.text}</p>
+          {hasConversation ? (
+            <>
+              <div className={styles.faceBar}>
+                <Face mood={mood} size={140} />
               </div>
-            ))}
-            {listening && <div className={styles.listening}>Escuchando…</div>}
-            <div ref={endRef} />
-          </main>
+              <main className={styles.thread}>
+                {messages.map((m) => (
+                  <div
+                    key={m.id}
+                    className={`${styles.msg} ${m.author === "user" ? styles.user : styles.avi}`}
+                  >
+                    <span className={styles.msgAuthor}>
+                      {m.author === "user" ? "Tú" : "AVI"}
+                    </span>
+                    <p className={styles.msgText}>{m.text}</p>
+                  </div>
+                ))}
+                {listening && <div className={styles.listening}>Escuchando…</div>}
+                <div ref={endRef} />
+              </main>
+            </>
+          ) : (
+            <div className={styles.faceHero}>
+              <Face mood={mood} size={320} />
+              <p className={styles.faceHint}>Hola, soy AVI — háblame o escribe.</p>
+            </div>
+          )}
 
           <div className={styles.suggestions}>
             {SUGGESTIONS[role].map((s) => (

@@ -1,0 +1,71 @@
+.face {
+  display: block;
+  overflow: visible;
+}
+
+.eye {
+  fill: var(--accent);
+}
+
+.pupil {
+  fill: var(--background, #0a0a0c);
+}
+
+.eyeGroup {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blink 4.5s infinite;
+}
+
+@keyframes blink {
+  0%,
+  91%,
+  100% {
+    transform: scaleY(1);
+  }
+  93%,
+  95% {
+    transform: scaleY(0.06);
+  }
+  97% {
+    transform: scaleY(1);
+  }
+}
+
+.mouth {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.mouthOpen {
+  fill: var(--accent);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: talk 0.25s ease-in-out infinite alternate;
+}
+
+@keyframes talk {
+  from {
+    transform: scaleY(0.4);
+  }
+  to {
+    transform: scaleY(1.9);
+  }
+}
+
+/* listening — wide, attentive eyes */
+.face[data-mood="listening"] .eyeGroup {
+  animation: none;
+  transform: scale(1.15);
+}
+
+/* thinking — pupils glance up, slower blink */
+.face[data-mood="thinking"] .pupil {
+  transform: translateY(-5px);
+}
+
+.face[data-mood="thinking"] .eyeGroup {
+  animation-duration: 6s;
+}

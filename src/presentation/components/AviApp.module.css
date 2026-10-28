@@ -180,6 +180,29 @@
   font-weight: 500;
 }
 
+/* Face (hero / bar) */
+
+.faceHero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 24px 0;
+}
+
+.faceBar {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 8px;
+}
+
+.faceHint {
+  font-size: 14px;
+  color: var(--muted);
+}
+
 /* Thread */
 
 .thread {
