@@ -254,20 +254,114 @@
 
 /* Presencia compacta durante la conversación */
 
+.presenceMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1;
+}
+
 .presenceStatus {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--accent);
-  z-index: 1;
 }
 
 .presenceStatus[data-mood="idle"] {
   color: var(--muted);
 }
 
+.presenceStatus[data-mood="joy"] {
+  color: #ffd166;
+}
+
+.presenceStatus[data-mood="anger"] {
+  color: #ff6b6b;
+}
+
+.presenceStatus[data-mood="sad"] {
+  color: #74a7ff;
+}
+
+.presenceStatus[data-mood="surprise"] {
+  color: #c792ea;
+}
+
 .presenceStatus[data-mood="listening"],
 .presenceStatus[data-mood="speaking"] {
   animation: pulse 1.2s ease-in-out infinite;
+}
+
+.resetMoodBtn {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-border);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resetMoodBtn:hover {
+  color: var(--foreground);
+  border-color: var(--accent);
+}
+
+/* Selector interactivo de expresiones anime */
+.expressionBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), var(--glass));
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  max-width: 95%;
+  z-index: 2;
+  animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) 0.15s both;
+}
+
+.expressionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+.expressionBtn {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 5px 11px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.expressionBtn:hover {
+  color: var(--foreground);
+  background: var(--glass-strong);
+  border-color: var(--glass-border);
+}
+
+.expressionBtnActive {
+  color: #041210;
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 14px var(--accent-glow);
+  font-weight: 600;
 }
 
 /* Botón de voz principal */

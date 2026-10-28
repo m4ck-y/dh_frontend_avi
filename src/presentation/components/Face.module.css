@@ -1,4 +1,4 @@
-/* AVI: solo contorno (ojos + boca), trazo anime con color por emoción */
+/* AVI Anime Facial Visage — Estilo Manga / Anime con renderizado vectorial de alta fidelidad */
 
 .face {
   display: block;
@@ -6,164 +6,249 @@
   height: auto;
   overflow: visible;
   color: var(--accent);
-  transition: color 0.6s ease;
-  filter: drop-shadow(0 0 16px var(--accent-glow));
+  transition: color 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+  filter: drop-shadow(0 0 20px var(--accent-glow));
 }
 
-/* Color por emoción */
+/* Colores de acento por emoción */
+.face[data-expression="idle"],
+.face[data-expression="listening"],
+.face[data-expression="thinking"],
+.face[data-expression="speaking"] {
+  color: var(--accent);
+}
+
 .face[data-expression="joy"] {
   color: #ffd166;
+  filter: drop-shadow(0 0 24px rgba(255, 209, 102, 0.45));
 }
+
 .face[data-expression="anger"] {
   color: #ff6b6b;
+  filter: drop-shadow(0 0 24px rgba(255, 107, 107, 0.5));
 }
+
 .face[data-expression="sad"] {
   color: #74a7ff;
+  filter: drop-shadow(0 0 22px rgba(116, 167, 255, 0.45));
 }
+
 .face[data-expression="surprise"] {
   color: #c792ea;
+  filter: drop-shadow(0 0 24px rgba(199, 146, 234, 0.5));
 }
 
-/* El pop al cambiar de expresión: solo este grupo se anima,
-   así el glow del svg no se reinicia en cada cambio */
+/* Animación de entrada al cambiar de emoción */
 .pop {
-  animation: pop 0.35s cubic-bezier(0.2, 0.8, 0.3, 1.2);
+  animation: popIn 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center;
 }
 
-@keyframes pop {
+@keyframes popIn {
   from {
-    opacity: 0.35;
-    transform: scale(0.95);
+    opacity: 0.4;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
-/* Respiración suave del conjunto */
-.eyeL,
-.eyeR {
-  animation: breathe 4.5s ease-in-out infinite;
+/* Cejas expresivas */
+.brows {
+  transform-origin: center;
+  transition: transform 0.3s ease;
 }
 
-.eyeR {
-  animation-delay: 0.15s;
-}
-
-@keyframes breathe {
-  50% {
-    transform: translateY(2px);
-  }
-}
-
-/* Parpadeo: escala en Y del grupo del ojo */
+/* Respiración y parpadeo de ojos */
 .eyeL,
 .eyeR {
   transform-box: fill-box;
   transform-origin: center;
 }
 
+/* Respiración suave anime */
 .face[data-expression="idle"] .eyeL,
 .face[data-expression="idle"] .eyeR,
 .face[data-expression="speaking"] .eyeL,
-.face[data-expression="speaking"] .eyeR {
-  animation: breathe 4.5s ease-in-out infinite, blink 5.2s infinite;
+.face[data-expression="speaking"] .eyeR,
+.face[data-expression="listening"] .eyeL,
+.face[data-expression="listening"] .eyeR {
+  animation: breathe 5s ease-in-out infinite, blink 4.8s infinite;
+}
+
+.eyeR {
+  animation-delay: 0.12s, 0s;
 }
 
 .face[data-expression="speaking"] .eyeL,
 .face[data-expression="speaking"] .eyeR {
-  animation-duration: 4.5s, 2.6s;
+  animation-duration: 4.5s, 3s;
 }
 
+@keyframes breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(1.8px);
+  }
+}
+
+/* Parpadeo anime ágil */
 @keyframes blink {
   0%,
-  92%,
+  93%,
   100% {
     transform: scaleY(1);
   }
   95% {
-    transform: scaleY(0.12);
+    transform: scaleY(0.08);
   }
 }
 
-/* Pupilas: mirada errante en reposo, arriba al pensar */
-.pupil {
+/* Contenedor del iris: sutil micro-movimiento en reposo */
+.irisContainer {
   transform-box: fill-box;
   transform-origin: center;
 }
 
-.face[data-expression="idle"] .pupil {
-  animation: look 9s ease-in-out infinite;
+.face[data-expression="idle"] .irisContainer {
+  animation: gaze 8s ease-in-out infinite;
 }
 
-.face[data-expression="thinking"] .pupil {
-  transform: translate(3px, -4px);
-}
-
-@keyframes look {
+@keyframes gaze {
   0%,
   100% {
     transform: translate(0, 0);
   }
-  25% {
-    transform: translate(4px, 1px);
+  28% {
+    transform: translate(2.5px, 0.8px);
   }
-  55% {
-    transform: translate(-4px, 2px);
+  56% {
+    transform: translate(-2px, 1.2px);
   }
   80% {
-    transform: translate(2px, -1px);
+    transform: translate(1px, -0.8px);
   }
 }
 
-/* Boca que habla y boca "ooh" que pulsa */
+/* Bocas animadas */
 .mouthTalk,
-.mouthOoh {
+.mouthOoh,
+.mouthSad {
   transform-box: fill-box;
   transform-origin: center;
 }
 
+/* Hablar con modulación anime */
 .mouthTalk {
-  animation: talk 0.24s ease-in-out infinite;
+  animation: animeTalk 0.26s ease-in-out infinite alternate;
 }
 
-.mouthOoh {
-  animation: ooh 1.1s ease-in-out infinite;
-}
-
-@keyframes talk {
-  0%,
+@keyframes animeTalk {
+  0% {
+    transform: scaleY(0.65) scaleX(0.92);
+  }
   100% {
-    transform: scaleY(0.55);
-  }
-  50% {
-    transform: scaleY(1.25);
+    transform: scaleY(1.22) scaleX(1.05);
   }
 }
 
-@keyframes ooh {
+/* Boca ooh escuchando */
+.mouthOoh {
+  animation: animeOoh 1.2s ease-in-out infinite;
+}
+
+@keyframes animeOoh {
   0%,
   100% {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.15, 0.85);
+    transform: scale(1.18, 0.9);
   }
 }
 
-/* Lágrima que cae cuando está triste */
-.tear {
-  animation: tear 2.4s ease-in infinite;
+/* Boca triste con temblor */
+.mouthSad {
+  animation: tremble 1.8s ease-in-out infinite;
 }
 
-@keyframes tear {
-  0% {
-    opacity: 0;
+@keyframes tremble {
+  0%,
+  100% {
     transform: translateY(0);
   }
-  25% {
+  40% {
+    transform: translateY(-0.8px);
+  }
+  45% {
+    transform: translateY(0.8px);
+  }
+  50% {
+    transform: translateY(-0.4px);
+  }
+}
+
+/* Sonrojo */
+.blushGroup {
+  transition: opacity 0.4s ease;
+}
+
+/* Lágrimas de tristeza fluyendo */
+.tearL,
+.tearR {
+  animation: streamDown 2.2s ease-in infinite;
+}
+
+.tearR {
+  animation-delay: 0.65s;
+}
+
+@keyframes streamDown {
+  0% {
+    stroke-dashoffset: 60;
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.9;
+  }
+  80% {
+    opacity: 0.85;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+.tearDropL,
+.tearDropR {
+  animation: dropTear 2.2s cubic-bezier(0.4, 0, 0.8, 1) infinite;
+}
+
+.tearDropR {
+  animation-delay: 0.65s;
+}
+
+@keyframes dropTear {
+  0% {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(24px);
     opacity: 0.9;
   }
   100% {
+    transform: translateY(32px);
     opacity: 0;
-    transform: translateY(26px);
   }
 }
 
@@ -171,10 +256,14 @@
   .pop,
   .eyeL,
   .eyeR,
-  .pupil,
+  .irisContainer,
   .mouthTalk,
   .mouthOoh,
-  .tear {
-    animation: none;
+  .mouthSad,
+  .tearL,
+  .tearR,
+  .tearDropL,
+  .tearDropR {
+    animation: none !important;
   }
 }

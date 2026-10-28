@@ -17,7 +17,6 @@ export default function Waveform({ mood, micOn }: { mood: Mood; micOn: boolean }
 
   useEffect(() => {
     if (!micOn) {
-      setMicState("off");
       return;
     }
     let stream: MediaStream | null = null;
@@ -78,6 +77,7 @@ export default function Waveform({ mood, micOn }: { mood: Mood; micOn: boolean }
       cancelAnimationFrame(raf.current);
       stream?.getTracks().forEach((t) => t.stop());
       void ctx?.close();
+      setMicState("off");
     };
   }, [micOn]);
 

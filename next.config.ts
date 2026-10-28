@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import { PHASE_PRODUCTION_BUILD } from "next/constants";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   cacheComponents: true,
   partialPrefetching: true,
 };

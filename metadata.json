@@ -1,0 +1,9 @@
+{
+  "name": "AVI — LiberSalus",
+  "description": "Asistente/agente de IA de LiberSalus (PWA)",
+  "prompt": "This app was imported from GitHub repository m4ck-y/dh_frontend_avi.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

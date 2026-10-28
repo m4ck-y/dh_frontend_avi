@@ -68,7 +68,8 @@ export default function AviApp() {
   const [speaking, setSpeaking] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showThread, setShowThread] = useState(false);
-  const [testIdx, setTestIdx] = useState(-1);
+  const [manualExpression, setManualExpression] = useState<Expression | null>(null);
+  const [autoCycle, setAutoCycle] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   const mood: Mood = listening
@@ -79,17 +80,20 @@ export default function AviApp() {
         ? "speaking"
         : "idle";
   const hasConversation = messages.length > 0;
-  const expression: Expression = testIdx >= 0 ? EXPRESSIONS[testIdx] : mood;
+  const expression: Expression = manualExpression ?? mood;
 
-  // ciclo automático del botón "Probar expresiones"
+  // Ciclo automático para previsualizar todas las expresiones anime
   useEffect(() => {
-    if (testIdx < 0) return;
-    const t = window.setTimeout(
-      () => setTestIdx((i) => (i + 1 >= EXPRESSIONS.length ? -1 : i + 1)),
-      1400,
-    );
+    if (!autoCycle) return;
+    const t = window.setTimeout(() => {
+      setManualExpression((prev) => {
+        const currentIdx = prev ? EXPRESSIONS.indexOf(prev) : 0;
+        const nextIdx = (currentIdx + 1) % EXPRESSIONS.length;
+        return EXPRESSIONS[nextIdx];
+      });
+    }, 1800);
     return () => window.clearTimeout(t);
-  }, [testIdx]);
+  }, [autoCycle, manualExpression]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -110,6 +114,8 @@ export default function AviApp() {
   function send(text: string) {
     const trimmed = text.trim();
     if (!trimmed) return;
+    setManualExpression(null);
+    setAutoCycle(false);
     pushMessage(trimmed, "user");
     setInput("");
     setShowThread(true);
@@ -118,7 +124,7 @@ export default function AviApp() {
       setPending(false);
       pushMessage(reply, "avi");
       setSpeaking(true);
-      window.setTimeout(() => setSpeaking(false), 1600);
+      window.setTimeout(() => setSpeaking(false), 1800);
     });
   }
 
@@ -135,14 +141,15 @@ export default function AviApp() {
   }
 
   function toggleMic() {
+    setManualExpression(null);
+    setAutoCycle(false);
     if (listening) {
       setListening(false);
       // al terminar el dictado se envía (mock) y el ciclo sigue a thinking/speaking
       send("» dictado de ejemplo (mock)");
       return;
     }
-    // el mic queda encendido hasta que el usuario lo apague:
-    // así la onda refleja el sonido real mientras se le habla
+    // el mic queda encendido hasta que el usuario lo apague
     setListening(true);
   }
 
@@ -216,22 +223,60 @@ export default function AviApp() {
               <div className={styles.stageFace}>
                 <Face expression={expression} />
               </div>
-              {testIdx < 0 && (
-                <span className={styles.presenceStatus} data-mood={mood}>
-                  {STATUS[mood]}
+              <div className={styles.presenceMeta}>
+                <span className={styles.presenceStatus} data-mood={expression}>
+                  {manualExpression ? `${EMOTION_LABEL[expression]} (Previsualización)` : STATUS[mood]}
                 </span>
-              )}
+                {manualExpression && (
+                  <button
+                    type="button"
+                    className={styles.resetMoodBtn}
+                    onClick={() => {
+                      setManualExpression(null);
+                      setAutoCycle(false);
+                    }}
+                    title="Restablecer al estado en vivo"
+                  >
+                    ✕ En vivo
+                  </button>
+                )}
+              </div>
               <Waveform mood={mood} micOn={listening} />
-              {testIdx >= 0 && (
+
+              <div className={styles.expressionBar} aria-label="Expresiones anime de AVI">
+                <span className={styles.expressionLabel}>Expresiones:</span>
                 <button
                   type="button"
-                  className={styles.chip}
-                  onClick={() => setTestIdx(-1)}
-                  aria-label="Detener prueba de expresiones"
+                  className={`${styles.expressionBtn} ${autoCycle ? styles.expressionBtnActive : ""}`}
+                  onClick={() => {
+                    if (autoCycle) {
+                      setAutoCycle(false);
+                      setManualExpression(null);
+                    } else {
+                      setAutoCycle(true);
+                      if (!manualExpression) setManualExpression(EXPRESSIONS[0]);
+                    }
+                  }}
+                  aria-pressed={autoCycle}
                 >
-                  {EMOTION_LABEL[expression]} · detener
+                  {autoCycle ? "Detener ciclo" : "▶ Ciclo auto"}
                 </button>
-              )}
+                {EXPRESSIONS.map((exp) => (
+                  <button
+                    key={exp}
+                    type="button"
+                    className={`${styles.expressionBtn} ${expression === exp && !autoCycle ? styles.expressionBtnActive : ""}`}
+                    onClick={() => {
+                      setAutoCycle(false);
+                      setManualExpression((prev) => (prev === exp ? null : exp));
+                    }}
+                    aria-pressed={expression === exp && !autoCycle}
+                  >
+                    {EMOTION_LABEL[exp]}
+                  </button>
+                ))}
+              </div>
+
               {!hasConversation && (
                 <>
                   <h2 className={styles.heroTitle}>Hola, soy AVI</h2>
@@ -277,14 +322,6 @@ export default function AviApp() {
             </div>
 
             <div className={styles.suggestions} aria-label="Sugerencias">
-              <button
-                type="button"
-                className={styles.chip}
-                onClick={() => setTestIdx(testIdx < 0 ? 0 : -1)}
-                aria-pressed={testIdx >= 0}
-              >
-                {testIdx >= 0 ? "Detener prueba" : "Probar expresiones"}
-              </button>
               {SUGGESTIONS[role].map((s) => (
                 <button key={s} type="button" className={styles.chip} onClick={() => send(s)}>
                   {s}
