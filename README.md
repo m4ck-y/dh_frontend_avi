@@ -46,6 +46,13 @@ src/
 - Deploy mode: `output: 'export'` (static) vs Node runtime — undecided.
 - No-cache HTTP header location (nginx vs `headers()`), depends on the above.
 
+## Remotes
+
+- `origin` → `m4ck-y/dh_frontend_avi` (personal, private) — current primary.
+- **Pending**: publish to the organization (`LiberSalus/ls_frontend_avi`). Once
+  created, the organization remote becomes the **principal** (`origin`) and the
+  personal repo stays as the secondary mirror.
+
 ## Run
 
 ```bash
