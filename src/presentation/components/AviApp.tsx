@@ -93,7 +93,6 @@ export default function AviApp() {
         <div className={styles.brand}>
           <span className={styles.dot} />
           AVI
-          <span className={styles.badge}>shell</span>
         </div>
 
         <div className={styles.controls}>
@@ -118,7 +117,7 @@ export default function AviApp() {
             onClick={toggleFullscreen}
             title="Pantalla completa (inmersivo)"
           >
-            {isFullscreen ? "Salir de inmersivo" : "⛶ Inmersivo"}
+            {isFullscreen ? "Salir" : "Inmersivo"}
           </button>
         </div>
       </header>
@@ -153,9 +152,9 @@ export default function AviApp() {
                     key={m.id}
                     className={`${styles.msg} ${m.author === "user" ? styles.user : styles.avi}`}
                   >
-                    <span className={styles.msgAuthor}>
+                    <p className={styles.msgAuthor}>
                       {m.author === "user" ? "Tú" : "AVI"}
-                    </span>
+                    </p>
                     <p className={styles.msgText}>{m.text}</p>
                   </div>
                 ))}
@@ -183,9 +182,9 @@ export default function AviApp() {
               type="button"
               className={`${styles.mic} ${listening ? styles.micActive : ""}`}
               onClick={toggleMic}
-              title="Dictado por voz (mock)"
+              aria-label={listening ? "Detener dictado" : "Iniciar dictado"}
             >
-              🎙
+              {listening ? "●" : "○"}
             </button>
             <input
               className={styles.input}
