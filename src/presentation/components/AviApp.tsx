@@ -69,6 +69,17 @@ export default function AviApp() {
   // Estados de interacción fluida
   const [chatExpanded, setChatExpanded] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("avi_theme");
+        if (saved === "light" || saved === "dark") return saved;
+      } catch {
+        // ignore
+      }
+    }
+    return "dark";
+  });
 
   // Estados interactivos estilo avatar lab
   const [pointer, setPointer] = useState({ x: 0, y: 0 });
@@ -162,6 +173,21 @@ export default function AviApp() {
     document.addEventListener("fullscreenchange", onFs);
     return () => document.removeEventListener("fullscreenchange", onFs);
   }, []);
+
+  // Inicialización y sincronización del tema (Dark / Light) con Glassmorfismo
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  function toggleTheme() {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    try {
+      localStorage.setItem("avi_theme", next);
+    } catch {
+      // ignore
+    }
+  }
 
   // Interacción al tocar / hacer clics repetidos en AVI
   function handleFaceClick() {
@@ -285,21 +311,37 @@ export default function AviApp() {
           </button>
         </div>
 
-        {/* Botón flotante radial de menú (FAB) */}
-        <div className={styles.fabContainer}>
+        {/* Controles de la esquina superior derecha: Selector de tema Glass & FAB */}
+        <div className={styles.ambientControls}>
           <button
             type="button"
-            className={`${styles.fabTrigger} ${menuOpen ? styles.fabTriggerActive : ""}`}
-            onClick={() => setMenuOpen((prev) => !prev)}
-            aria-label={menuOpen ? "Cerrar menú" : "Abrir menú de navegación"}
-            aria-expanded={menuOpen}
+            className={styles.themeToggleBtn}
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Cambiar a modo claro pastel" : "Cambiar a modo oscuro obsidian"}
+            title={theme === "dark" ? "Activar Modo Claro Pastel" : "Activar Modo Oscuro Obsidian"}
           >
-            {menuOpen ? (
-              <X size={20} strokeWidth={2.4} />
+            {theme === "dark" ? (
+              <Sun size={20} strokeWidth={2.2} />
             ) : (
-              <Compass size={22} strokeWidth={2.2} />
+              <Moon size={20} strokeWidth={2.2} />
             )}
           </button>
+
+          {/* Botón flotante radial de menú (FAB) */}
+          <div className={styles.fabContainer}>
+            <button
+              type="button"
+              className={`${styles.fabTrigger} ${menuOpen ? styles.fabTriggerActive : ""}`}
+              onClick={() => setMenuOpen((prev) => !prev)}
+              aria-label={menuOpen ? "Cerrar menú" : "Abrir menú de navegación"}
+              aria-expanded={menuOpen}
+            >
+              {menuOpen ? (
+                <X size={20} strokeWidth={2.4} />
+              ) : (
+                <Compass size={22} strokeWidth={2.2} />
+              )}
+            </button>
 
           {/* Menú orbital desplegable con física fluida */}
           <AnimatePresence>
@@ -400,9 +442,25 @@ export default function AviApp() {
                       setMenuOpen(false);
                     }}
                   >
-                    <span className={styles.radialLabel}>Ajustes & Identidad</span>
+                    <span className={styles.radialLabel}>Ajustes & Simulación</span>
                     <span className={styles.radialOrb}>
                       <Settings size={18} strokeWidth={2} />
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={styles.radialItem}
+                    onClick={() => {
+                      toggleTheme();
+                      setMenuOpen(false);
+                    }}
+                  >
+                    <span className={styles.radialLabel}>
+                      {theme === "dark" ? "Modo Claro Pastel" : "Modo Oscuro Obsidian"}
+                    </span>
+                    <span className={styles.radialOrb}>
+                      {theme === "dark" ? <Sun size={18} strokeWidth={2} /> : <Moon size={18} strokeWidth={2} />}
                     </span>
                   </button>
                 </motion.div>
@@ -411,6 +469,7 @@ export default function AviApp() {
           </AnimatePresence>
         </div>
       </div>
+    </div>
 
       {/* Escenario Protagonista (Full Face & Voice Stage) */}
       <main
@@ -717,6 +776,32 @@ export default function AviApp() {
                       }}
                     >
                       <RotateCcw size={15} /> Reiniciar conversación
+                    </button>
+                  </div>
+                </div>
+
+                {/* Estilo Visual & Glassmorfismo */}
+                <div className={styles.settingsSection}>
+                  <span className={styles.settingsSectionTitle}>Estilo Visual & Glassmorfismo</span>
+                  <div className={styles.actionButtonRow}>
+                    <button
+                      type="button"
+                      className={`${styles.actionBtn} ${theme === "dark" ? styles.roleCardActive : ""}`}
+                      onClick={() => {
+                        if (theme !== "dark") toggleTheme();
+                      }}
+                    >
+                      <Moon size={16} /> Modo Oscuro (Obsidian Glass)
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`${styles.actionBtn} ${theme === "light" ? styles.roleCardActive : ""}`}
+                      onClick={() => {
+                        if (theme !== "light") toggleTheme();
+                      }}
+                    >
+                      <Sun size={16} /> Modo Claro (Pastel Milk Glass)
                     </button>
                   </div>
                 </div>
