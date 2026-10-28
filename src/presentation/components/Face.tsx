@@ -118,6 +118,7 @@ export interface FaceProps {
   pokeCount?: number;
   pokeMessage?: string | null;
   onFaceClick?: (e: React.MouseEvent) => void;
+  interactive?: boolean;
 }
 
 /* Ojos durmiendo (Anime Sleeping Eyes ˘ ˘) */
@@ -539,6 +540,7 @@ export default function Face({
   pokeCount = 0,
   pokeMessage = null,
   onFaceClick,
+  interactive = true,
 }: FaceProps) {
   const isSleeping = expression === "sleeping";
   const isJoy = expression === "joy";
@@ -560,15 +562,19 @@ export default function Face({
       style={{
         transform: `perspective(700px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`,
       }}
-      onClick={onFaceClick}
-      title="¡Toca a AVI para interactuar!"
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          onFaceClick?.(e as unknown as React.MouseEvent);
-        }
-      }}
+      onClick={interactive ? onFaceClick : undefined}
+      title={interactive ? "¡Toca a AVI para interactuar!" : undefined}
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      onKeyDown={
+        interactive
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                onFaceClick?.(e as unknown as React.MouseEvent);
+              }
+            }
+          : undefined
+      }
     >
       {/* Globo de reacción al tocar mucho a AVI */}
       {pokeMessage && (

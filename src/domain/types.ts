@@ -1,6 +1,6 @@
 export type Role = "anon" | "patient" | "tutor" | "professional" | "admin";
 
-export type View = "chat" | "history" | "info";
+export type View = "chat" | "history" | "info" | "expressions";
 
 export interface Message {
   id: number;

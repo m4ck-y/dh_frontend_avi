@@ -39,6 +39,18 @@ const NAV: { key: View; label: string; icon: React.ReactNode }[] = [
       </svg>
     ),
   },
+  {
+    key: "expressions",
+    label: "Expresiones",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+        <line x1="9" y1="9" x2="9.01" y2="9" />
+        <line x1="15" y1="9" x2="15.01" y2="9" />
+      </svg>
+    ),
+  },
 ];
 
 const STATUS: Record<Mood, string> = {
@@ -78,7 +90,6 @@ export default function AviApp() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showThread, setShowThread] = useState(false);
   const [manualExpression, setManualExpression] = useState<Expression | null>(null);
-  const [autoCycle, setAutoCycle] = useState(false);
 
   // Estados interactivos estilo avatar lab
   const [pointer, setPointer] = useState({ x: 0, y: 0 });
@@ -161,19 +172,6 @@ export default function AviApp() {
     };
   }, []);
 
-  // Ciclo automático para previsualizar todas las expresiones anime
-  useEffect(() => {
-    if (!autoCycle) return;
-    const t = window.setTimeout(() => {
-      setManualExpression((prev) => {
-        const currentIdx = prev ? EXPRESSIONS.indexOf(prev) : 0;
-        const nextIdx = (currentIdx + 1) % EXPRESSIONS.length;
-        return EXPRESSIONS[nextIdx];
-      });
-    }, 1800);
-    return () => window.clearTimeout(t);
-  }, [autoCycle, manualExpression]);
-
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, view]);
@@ -231,7 +229,6 @@ export default function AviApp() {
     const trimmed = text.trim();
     if (!trimmed) return;
     setManualExpression(null);
-    setAutoCycle(false);
     pushMessage(trimmed, "user");
     setInput("");
     setShowThread(true);
@@ -258,7 +255,6 @@ export default function AviApp() {
 
   function toggleMic() {
     setManualExpression(null);
-    setAutoCycle(false);
     if (listening) {
       setListening(false);
       // al terminar el dictado se envía (mock) y el ciclo sigue a thinking/speaking
@@ -355,7 +351,6 @@ export default function AviApp() {
                     className={styles.resetMoodBtn}
                     onClick={() => {
                       setManualExpression(null);
-                      setAutoCycle(false);
                     }}
                     title="Restablecer al estado en vivo"
                   >
@@ -364,40 +359,6 @@ export default function AviApp() {
                 )}
               </div>
               <Waveform mood={mood} micOn={listening} />
-
-              <div className={styles.expressionBar} aria-label="Expresiones anime de AVI">
-                <span className={styles.expressionLabel}>Expresiones:</span>
-                <button
-                  type="button"
-                  className={`${styles.expressionBtn} ${autoCycle ? styles.expressionBtnActive : ""}`}
-                  onClick={() => {
-                    if (autoCycle) {
-                      setAutoCycle(false);
-                      setManualExpression(null);
-                    } else {
-                      setAutoCycle(true);
-                      if (!manualExpression) setManualExpression(EXPRESSIONS[0]);
-                    }
-                  }}
-                  aria-pressed={autoCycle}
-                >
-                  {autoCycle ? "Detener ciclo" : "▶ Ciclo auto"}
-                </button>
-                {EXPRESSIONS.map((exp) => (
-                  <button
-                    key={exp}
-                    type="button"
-                    className={`${styles.expressionBtn} ${expression === exp && !autoCycle ? styles.expressionBtnActive : ""}`}
-                    onClick={() => {
-                      setAutoCycle(false);
-                      setManualExpression((prev) => (prev === exp ? null : exp));
-                    }}
-                    aria-pressed={expression === exp && !autoCycle}
-                  >
-                    {EMOTION_LABEL[exp]}
-                  </button>
-                ))}
-              </div>
 
               {!hasConversation && (
                 <>
@@ -513,6 +474,43 @@ export default function AviApp() {
               Superficies: embebido (landing · dashboard · tami · admin) · inmersivo{" "}
               <code>avi.libersalus.dev</code> · app nativa AVI · SO por voz.
             </p>
+          </main>
+        )}
+
+        {view === "expressions" && (
+          <main className={styles.panel} aria-label="Catálogo de expresiones">
+            <h2 className={styles.panelTitle}>Catálogo de expresiones</h2>
+            <p className={styles.note}>Toca una expresión para aplicársela a AVI.</p>
+            <div className={styles.exprGrid}>
+              {EXPRESSIONS.map((exp) => {
+                const active = manualExpression === exp;
+                return (
+                  <div
+                    key={exp}
+                    role="button"
+                    tabIndex={0}
+                    className={`${styles.exprCard} ${active ? styles.exprCardActive : ""}`}
+                    onClick={() => {
+                      setManualExpression(exp);
+                      setView("chat");
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setManualExpression(exp);
+                        setView("chat");
+                      }
+                    }}
+                    aria-pressed={active}
+                  >
+                    <div className={styles.exprFace}>
+                      <Face expression={exp} interactive={false} />
+                    </div>
+                    <span className={styles.exprLabel}>{EMOTION_LABEL[exp]}</span>
+                  </div>
+                );
+              })}
+            </div>
           </main>
         )}
       </div>
