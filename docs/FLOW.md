@@ -1,88 +1,101 @@
-# FLOW — AVI voz-primero
+# FLOW — AVI: Asistente de Salud de Próxima Generación
 
-AVI es el protagonista: la vista `chat` es un **escenario** donde la cara mira de
-frente y reacciona en vivo al ciclo de voz. La transcripción escrita existe, pero
-es secundaria: un panel plegable que se abre solo cuando hace falta.
+AVI redefine la interacción entre el usuario y un agente de IA de salud:
+**Cero barras rígidas (Headerless), escenario inmersivo protagonista y navegación gestual fluida.**
 
-La navegación vive en un **rail de vidrio** (columna izquierda en desktop, barra
-inferior fija en móvil) con tres destinos. No hay rutas anidadas ni sub-flujos:
-cada destino es una vista completa del mismo shell.
+---
+
+## 1. Filosofía de Interacción
+
+1. **Escenario Protagonista (Stage-First):**
+   * El rostro anime de AVI y su campo de sonido son el núcleo visual. No hay cabeceras web obsoletas ni barras laterales permanentes que resten inmersión.
+   * La mirada de AVI sigue el cursor en tiempo real con perspectiva 3D, respira suavemente y parpadea con naturalidad.
+   * Cuenta con **física de descanso**: tras 14 s de inactividad duerme plácidamente (`sleeping` con Zzz flotantes). Al mover el cursor o interactuar, despierta.
+   * **Mecánica de carisma anime:** si el usuario la toca repetidamente en rápida sucesión, AVI se ruboriza y se molesta temporalmente con un puchero y su marca de tensión anime (`💢`).
+
+2. **Transición Gestual a Conversación (Push-Up / Swipe Drawer):**
+   * La conversación escrita no compite con el escenario: vive en una sábana (*Sheet*) deslizante de cristal.
+   * **Gestos intuitivos:**
+     * Deslizar hacia arriba (`Swipe Up`) o hacia la izquierda (`Swipe Left`) en pantalla táctil, o hacer scroll hacia abajo con la rueda del ratón, o tocar la barra gestual `[▲ Ver conversación]` empuja el escenario hacia el **Modo Conversación**.
+     * Enviar texto o dictar por voz expande automáticamente la conversación para leer la respuesta.
+     * En el Modo Conversación, AVI se transforma elegantemente en un **compañero flotante en cabecera** (*Companion Avatar*), manteniendo su expresividad anime, seguimiento visual y onda viva mientras el hilo de mensajes fluye debajo.
+     * Deslizar hacia abajo (`Swipe Down`) o tocar el tirador devuelve la vista al escenario completo con animación elástica de resorte (*spring physics*).
+
+3. **Menú Orbital Flotante (Floating Radial Menu):**
+   * Sustituye al antiguo rail lateral por un único botón orbital (**FAB**) en la esquina superior.
+   * Al tocarlo, despliega en abanico circular satélites de cristal con iconos luminosos y etiquetas flotantes:
+     1. 💬 **Escenario Protagonista** (retorno al modo principal)
+     2. 🗨️ **Conversación / Chat** (apertura de la sábana de mensajes)
+     3. 🎭 **Catálogo de Expresiones** (explorador interactivo anime)
+     4. 📜 **Historial de Sesiones** (sesiones anteriores de salud)
+     5. ℹ️ **Contexto & Superficies** (niveles de seguridad y datos PHR)
+     6. ⚙️ **Ajustes & Simulación (`test_settings`)** (cambio de rol, pantalla completa inmersiva, triggers de avatar)
+
+---
+
+## 2. Diagrama de Navegación
 
 ```mermaid
-flowchart LR
-    chat["chat — Escenario de AVI"]
-    history["history — Historial"]
-    info["info — Contexto y superficies"]
+flowchart TD
+    subgraph Escenario ["Escenario Protagonista (Full Stage)"]
+        Face["Rostro Anime + Eye Tracking"]
+        Wave["Onda de Voz Real (48 barras)"]
+        Mic["Micrófono Grande Central"]
+        GesturePrompt["Barra Gestual: ▲ Desliza para conversar"]
+    end
 
-    chat -->|"rail: Historial"| history
-    chat -->|"rail: Info"| info
-    history -->|"rail: Chat"| chat
-    info -->|"rail: Chat"| chat
+    subgraph ChatSheet ["Modo Conversación (Sliding Glass Sheet)"]
+        MiniCompanion["Companion Header: Mini Face + Wave + Status"]
+        Thread["Hilo de Mensajes de Vidrio"]
+        Composer["Composer: Input + Mic + Enviar"]
+        CollapseBtn["Tirador: ▼ Deslizar para volver"]
+    end
+
+    subgraph RadialOrb ["Menú Orbital Flotante (FAB)"]
+        OrbTrigger["Orb Trigger"]
+        OrbExpressions["🎭 Expresiones"]
+        OrbHistory["📜 Historial"]
+        OrbInfo["ℹ️ Info"]
+        OrbSettings["⚙️ Test Settings"]
+    end
+
+    Escenario <-->|"Swipe Up / Touch / Scroll / Send"| ChatSheet
+    OrbTrigger -->|"Tap"| RadialOrb
+    RadialOrb -->|"Seleccionar"| OrbExpressions
+    RadialOrb -->|"Seleccionar"| OrbHistory
+    RadialOrb -->|"Seleccionar"| OrbInfo
+    RadialOrb -->|"Seleccionar"| OrbSettings
 ```
 
-| id | Vista | Descripción |
-|---|---|---|
-| `chat` | Escenario + micrófono | AVI de frente: cara, estado, onda de sonido y mic grande; texto como alternativa |
-| `history` | Lista de conversaciones | Sesiones pasadas con título y fecha |
-| `info` | Niveles de contexto | Qué datos ve AVI según la identidad activa |
+---
 
-## Ciclo de interacción (voz)
-
-El escenario refleja el estado en cuatro canales a la vez: expresión de la cara,
-etiqueta de estado, onda de sonido (amplitud/ritmo) y brillo del micrófono.
+## 3. Ciclo de Estados Vocales y Expresivos
 
 ```mermaid
 stateDiagram-v2
-    [*] --> idle
-    idle --> listening : tocar mic grande
-    listening --> thinking : apagar mic (envía dictado mock)
-    thinking --> speaking : respuesta de AVI recibida
-    speaking --> idle : termina locución (1.6 s)
-    listening --> idle : sin permiso de micrófono
-    idle --> thinking : enviar texto o sugerencia
+    [*] --> idle : Inicio
+    idle --> sleeping : Inactividad (14 s sin interacción)
+    sleeping --> idle : Mover cursor / Clic / Teclado
+    idle --> listening : Tocar micrófono
+    listening --> thinking : Apagar micrófono (procesando dictado)
+    thinking --> speaking : Respuesta recibida (AVI vocaliza)
+    speaking --> idle : Fin de locución
+    idle --> annoyed : Clics rápidos repetidos en el rostro (≥4)
+    annoyed --> idle : Enfriamiento (3.8 s)
 ```
 
-| id | Estado | Disparador | Cara | Onda | Mic |
-|---|---|---|---|---|---|
-| `idle` | En línea | reposo | sonrisa, parpadeo | baja y lenta (2.2 s) | vidrio neutro |
-| `listening` | Escuchando… | mic encendido | ojos abiertos, cejas arriba | **nivel real del micrófono** | relleno accent + pulso |
-| `thinking` | Pensando… | respuesta en vuelo | párpados medios, mirada arriba | media (1.1 s) | vidrio neutro |
-| `speaking` | Hablando… | respuesta recibida (1.6 s) | boca que habla | máxima y veloz (0.38 s) | vidrio neutro |
+| Estado | Gatillador | Expresión Anime | Onda | Comportamiento |
+|---|---|---|---|---|
+| `idle` | Reposo | Ojos amables, mirada errante, parpadeo | Simulación suave | Sigue el puntero del mouse |
+| `sleeping` | 14 s inactividad | Ojos cerrados `˘ ˘`, letras `Zzz` flotando | Reposo bajo | Respiración profunda, no sigue mouse |
+| `annoyed` | Toques rápidos (≥4) | Ceño fruncido, ojos afilados, marca `💢`, sacudida | Media | Globo de texto cómico de protesta |
+| `listening` | Micrófono abierto | Ojos atentos curiosos, boca en "o" pulsante | **Audio real (AnalyserNode)** | Micrófono iluminado en cyan pulsante |
+| `thinking` | Procesando consulta | Mirada alzada reflexiva, ceja asimétrica | Media (1.1 s) | Evaluación de contexto según rol |
+| `speaking` | Emitiendo respuesta | Boca anime hablando sincronizada | Dinámica (0.38 s) | Parpadeo ágil de habla |
 
-## Micrófono real (permiso)
+---
 
-Encender el mic pide `getUserMedia({ audio })` y queda abierto hasta que el
-usuario lo apague (ahí se envía el dictado mock y el ciclo sigue). Con permiso
-concedido, un `AnalyserNode` (fft 2048) mide el pico por frame y alimenta un
-historial deslizante de 48 barras (~30 fps, ventana de 1.6 s): se ve la forma
-del sonido, susurros incluidos (gamma 0.5 + ganancia ×2, escala ×7.5 sobre
-barras de 6px). Si el permiso se deniega, la onda vuelve a la simulación por
-estado y avisa: *micrófono sin permiso — onda simulada*. Al apagar el mic se
-liberan tracks y AudioContext.
+## 4. Paneles de Hoja Flotante (Floating Modal Sheets)
 
-## Modo prueba de expresiones
-
-El chip **Probar expresiones** recorre el ciclo `joy → surprise → anger → sad →
-listening → thinking → speaking → idle` (1.4 s cada una) y vuelve solo al estado
-vivo al terminar; un chip en el escenario permite detenerlo antes. Durante la
-prueba la etiqueta de estado se reemplaza por el nombre de la emoción y la cara
-toma su color (ver SCREENS).
-
-
-## Transcripción secundaria
-
-El thread de mensajes no compite con el escenario:
-
-- Sin conversación: no existe; el escenario muestra el saludo (*Hola, soy AVI*).
-- Al primer mensaje: se abre automáticamente como panel de vidrio bajo el
-  escenario (`max-height: 34%`, scroll propio, `aria-live="polite"`).
-- Después: se pliega/despliega con el botón redondo del composer
-  (`aria-expanded`), para devolverle el espacio a la cara.
-
-El composer queda siempre al pie como alternativa de texto: input + *Enviar* +
-chips de sugerencia por identidad.
-
-## Identidad (select del header)
-
-Cambiar la identidad recarga el contexto visible y las sugerencias; no borra el
-thread activo. Es un cambio de alcance, no de vista.
+Los destinos secundarios (`expressions`, `history`, `info`, `settings`) se presentan como hojas flotantes con desenfoque de cristal sobre el escenario, sin reiniciar el estado de la conversación ni desmotar el avatar:
+* Al cerrar con `✕` o tocar el fondo, el usuario regresa inmediatamente al punto exacto donde estaba con AVI.

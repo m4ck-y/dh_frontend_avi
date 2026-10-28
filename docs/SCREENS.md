@@ -1,158 +1,127 @@
-# SCREENS — AVI
+# SCREENS — AVI: Especificación Visual y de Pantallas
 
-Shell compartido en todas las vistas: **rail de vidrio** (izquierda en desktop,
-barra inferior fija en móvil) + columna principal con header de vidrio.
-En `chat`, el **escenario** manda: AVI de frente con su onda de sonido; el texto
-vive abajo, plegable.
+Diseño cinematográfico inmersivo:
+* **Sin barra superior rígida (`Headerless`):** la identidad vive en un chip ambiental y el menú en un orbe orbital flotante (FAB).
+* **Escenario Protagonista:** AVI al 100% de presencia con física 3D y seguimiento de cursor.
+* **Sábana de Conversación Gestual:** deslizable hacia arriba por toque o rueda de ratón.
+* **Test Settings:** panel modal para cambiar de rol clínico, activar modo inmersivo y probar el avatar.
 
 ---
 
-## stage
+## 1. Escenario Protagonista (`Stage Mode`)
 
-**Vista**: `chat` sin conversación (`messages.length === 0`)
-**Mood inicial**: `idle`
+```
+┌────────────────────────────────────────────────────────┐
+│ ● AVI  [ Paciente · PHR · Test Settings ⚙️ ]     ( ❖ ) │ ← Orbe flotante (FAB)
+│                                                        │
+│                    ╭──────────────╮                    │
+│                    │  ◉        ◉  │   ← Glow radial    │
+│                    │      ⌣       │     ambiental      │
+│                    ╰──────────────╯                    │
+│                       En línea                         │
+│                                                        │
+│                    ▁▂▃▅▇▅▃▂▁▂▃▅▇▅▃▂                    │ ← Onda 48 barras
+│                                                        │
+│                      Hola, soy AVI                     │
+│         Toca el micrófono y háblame, o desliza         │
+│               hacia arriba para escribir               │
+│                                                        │
+│                         ( 🎙 )                         │ ← Mic grande 72px
+│                    Toca para hablar                    │
+│                                                        │
+│          [ Registrar mi glucosa ] [ Ver historial ]    │ ← Sugerencias chip
+│                                                        │
+│       ▲ Desliza hacia arriba para ver conversación     │ ← Barra gestual
+└────────────────────────────────────────────────────────┘
+```
 
-| Campo | Tipo | Descripción |
+| Elemento | Tipo | Comportamiento |
 |---|---|---|
-| `mood` | `Mood` | Expresión de la cara (idle hasta primer input) |
-| `role` | `Role` | Identidad activa; su contexto aparece en el hint |
-
-```
-┌────┬───────────────────────────────────┐
-│ ▒▒ │ ● AVI  asistente de salud   [Identidad ▼] [⤢ Inmersivo] │
-│ 💬 │                                   │
-│ 🕐 │          ╭─────────╮              │
-│ ℹ️ │          │ ◉     ◉ │   ← glow     │
-│    │          │   ⌣     │   radial     │
-│    │          ╰─────────   detrás     │
-│    │           En línea                │
-│    │         ▁▂▃▅▃▂▁▂▃▅▃▂▁  ← onda     │
-│    │          Hola, soy AVI            │
-│    │   Toca el micrófono y háblame…    │
-│    │                                   │
-│    │              ( 🎙 )   ← mic 72px  │
-│    │          Toca para hablar         │
-│    │  [ ¿Qué es LiberSalus? ] [ … ]    │
-│    │ [💬?] [ …o escribe una instrucción ] (Enviar) │
-└────┴───────────────────────────────────┘
-   móvil: rail → barra inferior fija
-```
+| `AmbientBar` | Cabecera ambiental | Marca mínima + chip de identidad interactivo (abre `settings`). |
+| `FabTrigger` | Botón radial flotante | Despliega el abanico circular de satélites de navegación. |
+| `StageFace` | Rostro Anime | Sigue el puntero del ratón en tiempo real con perspectiva 3D (tilt); responde a clics repetidos. |
+| `Waveform` | Oscilograma | 48 barras alimentadas por `AnalyserNode` en vivo o simulación por estado. |
+| `BigMic` | Botón de voz | Activa captura de voz; se ilumina en cyan con pulso de resplandor. |
+| `GestureBar` | Tirador gestual | `Swipe Up`, `Swipe Left` o clic para empujar la sábana de chat hacia arriba. |
 
 ---
 
-## conversation
+## 2. Modo Conversación (`Chat Sheet Mode`)
 
-**Vista**: `chat` con mensajes
-**Input**: `messages[]`, `mood`, `role`, `listening`, `pending`, `speaking`,
-`showThread`
+Al deslizar hacia arriba o enviar un mensaje, la conversación se expande fluidamente:
 
-| Campo | Tipo | Descripción |
+```
+┌────────────────────────────────────────────────────────┐
+│ ╭────────────────────────────────────────────────────╮ │
+│ │  [ ◉ ⌣ ◉ ]  AVI · En línea            [ ▼ Escenario]│ │ ← Companion Header
+│ ╰────────────────────────────────────────────────────╯ │   (mini avatar activo)
+│                                                        │
+│ ╭────────────────────────────────────────────────────╮ │
+│ │ AVI · Hola, ¿en qué puedo ayudarte hoy?            │ │
+│ ╰────────────────────────────────────────────────────╯ │
+│                                                        │
+│                     ╭────────────────────────────────╮ │
+│                     │ Tú · ¿Qué nivel de glucosa es  │ │
+│                     │      el adecuado en ayunas?    │ │
+│                     ╰────────────────────────────────╯ │
+│                                                        │
+│ [ Sugerencia 1 ] [ Sugerencia 2 ]                      │
+│ ╭────────────────────────────────────────────────────╮ │
+│ │ (🎙) [ Escribe una instrucción para AVI… ] [Enviar]│ │ ← Composer dock
+│ ╰────────────────────────────────────────────────────╯ │
+└────────────────────────────────────────────────────────┘
+```
+
+| Elemento | Tipo | Comportamiento |
 |---|---|---|
-| `messages` | `Message[]` | Thread secundario, scroll automático al final |
-| `mood` | `Mood` | Derivado: listening > thinking(pending) > speaking > idle |
-| `showThread` | `boolean` | Panel de transcripción abierto; toggle en el composer |
-| `listening` | `boolean` | Mic abierto hasta que el usuario lo apague |
-| `pending` | `boolean` | Respuesta de AVI en vuelo |
-| `speaking` | `boolean` | Boca animada 1.6 s tras responder |
-
-```
-┌────┬───────────────────────────────────┐
-│ ▒ │ ● AVI …             [Identidad ▼] [⤢] │
-│ 💬 │          ╭─────────╮              │
-│ 🕐 │          │ ◉     ◉ │  Escuchando… │
-│ ℹ️ │          │   ○     │  ▂▅▇▅▂▅▇▅▂    │
-│    │ ╭───────────────────────────────╮ │
-│    │ │ AVI · Hola, ¿en qué ayudo?    │ │ ← thread
-│    │ │        Tú · Necesito agendar… │ │   plegable
-│    │ ╰───────────────────────────────╯ │   (34% máx)
-│    │              ( 🎙 )               │
-│    │      Escuchando — toca para term. │
-│    │ [ Sugerencia 1 ] [ Sugerencia 2 ] │
-│    │ [💬] [ …o escribe…        ] (Enviar) │
-└────┴───────────────────────────────────┘
-   [💬] = toggle de transcripción (aria-expanded)
-```
+| `CompanionHeader` | Cabecera viva de compañero | Contiene la cara de AVI en miniatura (sigue reaccionando y hablando en vivo) y el botón `[▼ Escenario]` para plegar. |
+| `Thread` | Hilo de mensajes | Burbujas de cristal con distinción visual para usuario y asistente. |
+| `Composer` | Muelle de entrada | Micrófono compacto de dictado + campo de texto + botón Enviar. |
 
 ---
 
-## listening
+## 3. Menú Radial Orbital Flotante (`FAB Radial Menu`)
 
-**Vista**: `chat` con `listening = true`
-La cara pasa a ojos abiertos + cejas arriba + boca "ooh"; la etiqueta del
-escenario dice *Escuchando…* y el mic grande se rellena de accent con pulso de
-glow. El mic queda abierto hasta que se apague: mientras tanto la onda pinta el
-sonido real (historial deslizante de 48 barras). Al apagarlo se envía el dictado
-mock y el ciclo sigue a `thinking` → `speaking`.
-
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `listening` | `boolean` | `true` durante los 1.2 s del mock |
-| `input` | `string` | Recibe el texto dictado al cerrar |
-
----
-
-## history
-
-**Vista**: rail → `history`
-**Input**: `HISTORY[]` (mock estático)
-
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | `string` | Identificador de sesión |
-| `title` | `string` | Título de la conversación |
-| `when` | `string` | Fecha relativa |
+Al pulsar el orbe superior derecho `( ❖ )`:
 
 ```
-┌────┬─────────────────────────────────┐
-│ ▒ │ ● AVI …                         │
-│ 💬 │ Historial de conversaciones     │
-│ 🕐 │ ─────────────────────────────╮ │
-│ ℹ️ │ │ Consulta de resultados      │ │
-│    │ │ Hace 2 horas                │ │
-│    │ ╰─────────────────────────────╯ │
-│    │ ╭─────────────────────────────╮ │
-│    │ │ Agendamiento cardiología    │ │
-│    │ │ Ayer                        │ │
-│    │ ╰─────────────────────────────╯ │
-│    │ Lista estática de ejemplo.      │
-└────┴─────────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│ [ Telón con desenfoque de cristal ]              ( ✕ ) │ ← Trigger rotado
+│                                                        │
+│                    [ Escenario Protagonista ] ( 💬 )   │
+│                      [ Conversación / Chat ]  ( 🗨️ )   │
+│                    [ Catálogo Expresiones ]   ( 🎭 )   │ ← Satélites radiales
+│                      [ Historial de Sesiones ]( 📜 )   │   con animación
+│                      [ Contexto & Seguridad ] ( ℹ️ )   │   de resorte
+│                      [ Ajustes & Identidad ]  ( ⚙️ )   │
+│                                                        │
+└────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## info
+## 4. Modal de Ajustes y Simulación (`Test Settings`)
 
-**Vista**: rail → `info`
-**Input**: `CONTEXT_TIERS[]`
+Reemplaza los viejos selectores del header por un panel modal de cristal:
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `level` | `number` | Nivel de contexto (1–4) |
-| `who` | `string` | Identidad o colectivo |
-| `what` | `string` | Datos visibles en ese nivel |
-
-Mismo patrón de tarjetas de vidrio que `history`, con una nota final que lista
-las superficies del producto (embebido, inmersivo, app nativa, SO por voz).
+1. **Selector de Identidad y Rol Clínico:**
+   * `Anónimo`: contenido educativo abierto, disclaimers generales.
+   * `Paciente`: acceso a datos de salud personal (PHR), glucosa, constantes.
+   * `Tutor`: gestión de dependientes autorizados.
+   * `Profesional`: historial de pacientes con consentimiento vigente.
+   * `Admin`: administración operacional de catálogos y reglas.
+2. **Pruebas de Avatar:**
+   * 💤 *Dormir a AVI* (activa estado durmiendo con Zzz).
+   * ✨ *Despertar a AVI*.
+   * 💢 *Probar reacción de enojo* (dispara puchero y marca anime).
+   * 🗑️ *Reiniciar conversación*.
+3. **Modo Inmersivo:**
+   * Botón para entrar o salir de pantalla completa nativa (`requestFullscreen`).
 
 ---
 
-## Expresiones de AVI (`Face`) y onda (`Waveform`)
+## 5. Modal de Catálogo de Expresiones Anime
 
-Solo contorno: cejas + ojos + boca, trazo anime sobre glow, sin cuerpo ni
-óvalo de cara. El color del trazo cambia con la emoción.
-
-| Expresión | Cejas | Ojos | Boca | Color |
-|---|---|---|---|---|
-| `joy` | altas y curvas | arcos cerrados ∩ (risa) | sonrisa abierta (D) | ámbar `#ffd166` |
-| `surprise` | muy altas | redondos grandes, brillo | "o" pequeña | violeta `#c792ea` |
-| `anger` | en V hacia el centro | iris chico, párpado bajo tenso | ceño ∩ | rojo `#ff6b6b` |
-| `sad` | interiores alzados | iris bajo + lágrima que cae | línea triste | azul `#74a7ff` |
-| `listening` | levantadas | abiertos 1.14×, sin parpadeo | "ooh" pulsante | teal (accent) |
-| `thinking` | una alzada, otra baja | un ojo a media asta, mirada arriba | línea dudosa ~ | teal (accent) |
-| `speaking` | levemente alzadas | parpadeo rápido | elipse que habla (0.24 s) | teal (accent) |
-| `idle` | neutras | parpadeo + mirada errante (9 s) | sonrisa | teal (accent) |
-
-La onda son 48 barras. Con permiso de micrófono pintan el nivel real medido por
-`AnalyserNode` (historial deslizante: el centro = ahora); sin permiso, amplitud
-y ritmo simulados por `data-mood` (2.5/2.2 s · 8/0.55 s · 3.5/1.1 s · 10/0.38 s).
-Todas las animaciones respetan `prefers-reduced-motion`.
+* Cuadrícula de tarjetas de cristal con vista en miniatura de cada expresión:
+  `idle`, `listening`, `thinking`, `speaking`, `joy`, `surprise`, `anger`, `sad`, `sleeping`, `annoyed`.
+* Tocar una tarjeta aplica la expresión de inmediato al rostro en el escenario principal.
