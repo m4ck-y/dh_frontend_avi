@@ -2,6 +2,26 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Compass,
+  Flame,
+  History as HistoryIcon,
+  Info,
+  Maximize2,
+  MessageSquare,
+  Mic,
+  Minimize2,
+  Moon,
+  Radio,
+  RotateCcw,
+  Send,
+  Settings,
+  Smile,
+  Sun,
+  X,
+} from "lucide-react";
 import type { Message, Role, View } from "@/domain/types";
 import { aviService } from "@/infrastructure";
 import { CONTEXT_TIERS, HISTORY, ROLE_KEYS, ROLES, SUGGESTIONS } from "@/shared/mock/avi";
@@ -261,7 +281,7 @@ export default function AviApp() {
             onClick={() => setView("settings")}
             title="Ajustes de identidad y simulación"
           >
-            {ROLES[role].label} · Test Settings ⚙️
+            {ROLES[role].label} · Test Settings
           </button>
         </div>
 
@@ -275,18 +295,9 @@ export default function AviApp() {
             aria-expanded={menuOpen}
           >
             {menuOpen ? (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
+              <X size={20} strokeWidth={2.4} />
             ) : (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="3" />
-                <circle cx="19" cy="12" r="2" />
-                <circle cx="5" cy="12" r="2" />
-                <circle cx="12" cy="5" r="2" />
-                <circle cx="12" cy="19" r="2" />
-              </svg>
+              <Compass size={22} strokeWidth={2.2} />
             )}
           </button>
 
@@ -320,10 +331,7 @@ export default function AviApp() {
                   >
                     <span className={styles.radialLabel}>Escenario Protagonista</span>
                     <span className={styles.radialOrb}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10" />
-                        <circle cx="12" cy="12" r="4" />
-                      </svg>
+                      <Radio size={18} strokeWidth={2} />
                     </span>
                   </button>
 
@@ -338,9 +346,7 @@ export default function AviApp() {
                   >
                     <span className={styles.radialLabel}>Conversación / Chat</span>
                     <span className={styles.radialOrb}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z" />
-                      </svg>
+                      <MessageSquare size={18} strokeWidth={2} />
                     </span>
                   </button>
 
@@ -354,12 +360,7 @@ export default function AviApp() {
                   >
                     <span className={styles.radialLabel}>Catálogo de Expresiones</span>
                     <span className={styles.radialOrb}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="9" />
-                        <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                        <line x1="9" y1="9" x2="9.01" y2="9" />
-                        <line x1="15" y1="9" x2="15.01" y2="9" />
-                      </svg>
+                      <Smile size={18} strokeWidth={2} />
                     </span>
                   </button>
 
@@ -373,10 +374,7 @@ export default function AviApp() {
                   >
                     <span className={styles.radialLabel}>Historial de Sesiones</span>
                     <span className={styles.radialOrb}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="9" />
-                        <path d="M12 7v5l3 3" />
-                      </svg>
+                      <HistoryIcon size={18} strokeWidth={2} />
                     </span>
                   </button>
 
@@ -390,11 +388,7 @@ export default function AviApp() {
                   >
                     <span className={styles.radialLabel}>Contexto & Superficies</span>
                     <span className={styles.radialOrb}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="9" />
-                        <path d="M12 11v5" />
-                        <path d="M12 8h.01" />
-                      </svg>
+                      <Info size={18} strokeWidth={2} />
                     </span>
                   </button>
 
@@ -408,10 +402,7 @@ export default function AviApp() {
                   >
                     <span className={styles.radialLabel}>Ajustes & Identidad</span>
                     <span className={styles.radialOrb}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="3" />
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                      </svg>
+                      <Settings size={18} strokeWidth={2} />
                     </span>
                   </button>
                 </motion.div>
@@ -482,11 +473,7 @@ export default function AviApp() {
             aria-label={listening ? "Detener dictado" : "Hablar con AVI"}
             aria-pressed={listening}
           >
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <rect x="9" y="2" width="6" height="12" rx="3" />
-              <path d="M5 10a7 7 0 0 0 14 0" />
-              <line x1="12" y1="17" x2="12" y2="21" />
-            </svg>
+            <Mic size={32} strokeWidth={2.2} />
           </button>
           <span className={styles.actionsHint}>
             {listening ? "Escuchando — toca para terminar" : "Toca para hablar"}
@@ -514,9 +501,7 @@ export default function AviApp() {
           onClick={() => setChatExpanded(true)}
           aria-label="Abrir conversación de chat"
         >
-          <svg className={styles.gestureChevron} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <polyline points="18 15 12 9 6 15" />
-          </svg>
+          <ChevronUp size={16} strokeWidth={2.5} className={styles.gestureChevron} />
           <span>
             {hasConversation ? `Ver conversación (${messages.length})` : "Desliza hacia arriba para escribir"}
           </span>
@@ -561,9 +546,7 @@ export default function AviApp() {
                   setChatExpanded(false);
                 }}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
+                <ChevronDown size={14} strokeWidth={2.5} />
                 <span>Escenario</span>
               </button>
             </div>
@@ -610,11 +593,7 @@ export default function AviApp() {
                 onClick={toggleMic}
                 aria-label={listening ? "Detener dictado" : "Dictar por voz"}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <rect x="9" y="2" width="6" height="12" rx="3" />
-                  <path d="M5 10a7 7 0 0 0 14 0" />
-                  <line x1="12" y1="17" x2="12" y2="21" />
-                </svg>
+                <Mic size={18} strokeWidth={2} />
               </button>
 
               <input
@@ -628,7 +607,9 @@ export default function AviApp() {
               />
 
               <button type="button" className={styles.send} onClick={() => send(input)}>
-                Enviar
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <Send size={14} strokeWidth={2.2} /> Enviar
+                </span>
               </button>
             </footer>
           </motion.div>
@@ -658,10 +639,7 @@ export default function AviApp() {
                   onClick={() => setView("chat")}
                   aria-label="Cerrar ajustes"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
+                  <X size={18} strokeWidth={2.2} />
                 </button>
               </div>
 
@@ -698,7 +676,7 @@ export default function AviApp() {
                         setView("chat");
                       }}
                     >
-                      💤 Dormir a AVI
+                      <Moon size={15} /> Dormir a AVI
                     </button>
 
                     <button
@@ -710,7 +688,7 @@ export default function AviApp() {
                         setView("chat");
                       }}
                     >
-                      ✨ Despertar a AVI
+                      <Sun size={15} /> Despertar a AVI
                     </button>
 
                     <button
@@ -726,7 +704,7 @@ export default function AviApp() {
                         }, 3800);
                       }}
                     >
-                      💢 Probar reacción de enojo
+                      <Flame size={15} /> Probar reacción de enojo
                     </button>
 
                     <button
@@ -738,7 +716,7 @@ export default function AviApp() {
                         setView("chat");
                       }}
                     >
-                      🗑️ Reiniciar conversación
+                      <RotateCcw size={15} /> Reiniciar conversación
                     </button>
                   </div>
                 </div>
@@ -751,14 +729,17 @@ export default function AviApp() {
                     className={styles.actionBtn}
                     onClick={toggleFullscreen}
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      {isFullscreen ? (
-                        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
-                      ) : (
-                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-                      )}
-                    </svg>
-                    <span>{isFullscreen ? "Salir de pantalla completa" : "Pantalla completa (Modo inmersivo)"}</span>
+                    {isFullscreen ? (
+                      <>
+                        <Minimize2 size={16} />
+                        <span>Salir de pantalla completa</span>
+                      </>
+                    ) : (
+                      <>
+                        <Maximize2 size={16} />
+                        <span>Pantalla completa (Modo inmersivo)</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -790,10 +771,7 @@ export default function AviApp() {
                   onClick={() => setView("chat")}
                   aria-label="Cerrar catálogo"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
+                  <X size={18} strokeWidth={2.2} />
                 </button>
               </div>
 
@@ -860,10 +838,7 @@ export default function AviApp() {
                   onClick={() => setView("chat")}
                   aria-label="Cerrar historial"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
+                  <X size={18} strokeWidth={2.2} />
                 </button>
               </div>
 
@@ -913,10 +888,7 @@ export default function AviApp() {
                   onClick={() => setView("chat")}
                   aria-label="Cerrar información"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
+                  <X size={18} strokeWidth={2.2} />
                 </button>
               </div>
 
