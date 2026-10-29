@@ -5,7 +5,6 @@
   display: block;
   width: 100%;
   transform-style: preserve-3d;
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   outline: none;
   user-select: none;
@@ -156,7 +155,6 @@
 .irisGroup {
   transform-box: fill-box;
   transform-origin: center;
-  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Párpados y pestañas */

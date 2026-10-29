@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, type ReactNode } from "react";
+import React, { useEffect, type ReactNode } from "react";
+import { motion, useMotionValue, useSpring, useTransform, type MotionValue } from "motion/react";
 import styles from "./Face.module.css";
 
 export type Mood = "idle" | "listening" | "thinking" | "speaking" | "sleeping";
@@ -114,7 +115,6 @@ const PALETTES: Record<Expression, Palette> = {
 
 export interface FaceProps {
   expression: Expression;
-  pointer?: { x: number; y: number };
   pokeCount?: number;
   pokeMessage?: string | null;
   onFaceClick?: (e: React.MouseEvent) => void;
@@ -177,8 +177,8 @@ function AnimeOpenEye({
   gazeY,
 }: {
   expression: Expression;
-  gazeX: number;
-  gazeY: number;
+  gazeX: MotionValue<number>;
+  gazeY: MotionValue<number>;
 }) {
   const isSurprise = expression === "surprise";
   const isNarrow = expression === "anger" || expression === "annoyed" || expression === "thinking";
@@ -200,11 +200,9 @@ function AnimeOpenEye({
       />
 
       {/* Iris con seguimiento fluido del puntero del mouse */}
-      <g
+      <motion.g
         className={styles.irisGroup}
-        style={{
-          transform: `translate(${gazeX}px, ${gazeY}px)`,
-        }}
+        style={{ x: gazeX, y: gazeY }}
       >
         <ellipse
           cx={80}
@@ -270,7 +268,7 @@ function AnimeOpenEye({
             opacity="0.85"
           />
         )}
-      </g>
+      </motion.g>
 
       {/* Pestaña superior con ala externa */}
       <path
@@ -646,7 +644,6 @@ function AnimeZzz() {
 
 export default function Face({
   expression,
-  pointer,
   pokeCount = 0,
   pokeMessage = null,
   onFaceClick,
@@ -656,7 +653,9 @@ export default function Face({
   const isJoy = expression === "joy";
   const isAnnoyed = expression === "annoyed" || expression === "anger" || pokeCount >= 4;
 
-  const [localPointer, setLocalPointer] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  // Motion values para el seguimiento del puntero (imperativo, sin re-render de React)
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
 
   useEffect(() => {
     if (!interactive || isSleeping) return;
@@ -666,7 +665,8 @@ export default function Face({
       const py = Math.max(-1, Math.min(1, (clientY - window.innerHeight / 2) / (window.innerHeight / 2)));
       cancelAnimationFrame(animId);
       animId = requestAnimationFrame(() => {
-        setLocalPointer({ x: px, y: py });
+        pointerX.set(px);
+        pointerY.set(py);
       });
     }
 
@@ -691,24 +691,23 @@ export default function Face({
     };
   }, [interactive, isSleeping]);
 
-  const activePointer = pointer ?? localPointer;
+  // Springs suaves: el ojo persigue al puntero con inercia (sin re-render)
+  const spring = { stiffness: 120, damping: 20, mass: 0.6 };
+  const sx = useSpring(pointerX, spring);
+  const sy = useSpring(pointerY, spring);
 
-  // Seguimiento suave del puntero (amortiguado)
-  const gazeX = isSleeping ? 0 : expression === "thinking" ? 3.5 : activePointer.x * 9.5;
-  const gazeY = isSleeping ? 2 : expression === "thinking" ? -3.5 : activePointer.y * 6;
-
-  // Inclinación 3D sutil hacia el mouse
-  const tiltX = (activePointer.y * -6).toFixed(2);
-  const tiltY = (activePointer.x * 8).toFixed(2);
+  const gazeX = useTransform(sx, (v) => (isSleeping ? 0 : expression === "thinking" ? 3.5 : v * 9.5));
+  const gazeY = useTransform(sy, (v) => (isSleeping ? 2 : expression === "thinking" ? -3.5 : v * 6));
+  const gazeXNeg = useTransform(gazeX, (v) => -v);
+  const tiltX = useTransform(sy, (v) => v * -6);
+  const tiltY = useTransform(sx, (v) => v * 8);
 
   const palette = PALETTES[expression] || PALETTES.idle;
 
   return (
-    <div
+    <motion.div
       className={`${styles.faceWrapper} ${isAnnoyed ? styles.shaking : ""}`}
-      style={{
-        transform: `perspective(700px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`,
-      }}
+      style={{ rotateX: tiltX, rotateY: tiltY, transformPerspective: 700 }}
       onClick={interactive ? onFaceClick : undefined}
       title={interactive ? "¡Toca a AVI para interactuar!" : undefined}
       role={interactive ? "button" : undefined}
@@ -865,7 +864,7 @@ export default function Face({
                 <Mirror>
                   <AnimeOpenEye
                     expression={expression}
-                    gazeX={-gazeX}
+                    gazeX={gazeXNeg}
                     gazeY={gazeY}
                   />
                 </Mirror>
@@ -902,6 +901,6 @@ export default function Face({
           <AnimeMouth expression={expression} />
         </g>
       </svg>
-    </div>
+    </motion.div>
   );
 }
