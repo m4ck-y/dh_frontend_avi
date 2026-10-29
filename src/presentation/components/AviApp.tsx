@@ -602,7 +602,7 @@ export default function AviApp() {
             >
               <div className={styles.companionLeft}>
                 <div className={styles.miniFace}>
-                  <Face expression={expression} interactive={false} pointer={pointer} />
+                  <Face expression={expression} interactive={false} />
                 </div>
                 <div className={styles.companionInfo}>
                   <span className={styles.companionTitle}>AVI</span>

@@ -70,6 +70,13 @@ export default function Waveform({
 
           const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
           audioCtx = new AudioContextClass();
+          if (audioCtx.state === "suspended") {
+            try {
+              await audioCtx.resume();
+            } catch {
+              // ignore
+            }
+          }
           analyser = audioCtx.createAnalyser();
           analyser.fftSize = 256;
           analyser.smoothingTimeConstant = 0.78;

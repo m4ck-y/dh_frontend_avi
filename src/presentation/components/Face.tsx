@@ -661,19 +661,33 @@ export default function Face({
   useEffect(() => {
     if (!interactive || isSleeping) return;
     let animId = 0;
-    function onPointerMove(e: PointerEvent) {
-      const px = Math.max(-1, Math.min(1, (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2)));
-      const py = Math.max(-1, Math.min(1, (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2)));
+    function updateCoords(clientX: number, clientY: number) {
+      const px = Math.max(-1, Math.min(1, (clientX - window.innerWidth / 2) / (window.innerWidth / 2)));
+      const py = Math.max(-1, Math.min(1, (clientY - window.innerHeight / 2) / (window.innerHeight / 2)));
       cancelAnimationFrame(animId);
       animId = requestAnimationFrame(() => {
         setLocalPointer({ x: px, y: py });
       });
     }
 
+    function onPointerMove(e: PointerEvent) {
+      updateCoords(e.clientX, e.clientY);
+    }
+
+    function onTouch(e: TouchEvent) {
+      if (e.touches && e.touches.length > 0) {
+        updateCoords(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }
+
     window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("touchmove", onTouch, { passive: true });
+    window.addEventListener("touchstart", onTouch, { passive: true });
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("touchmove", onTouch);
+      window.removeEventListener("touchstart", onTouch);
     };
   }, [interactive, isSleeping]);
 

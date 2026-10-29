@@ -254,7 +254,7 @@
   justify-content: flex-start;
   gap: 10px;
   position: relative;
-  padding: 68px 16px 24px;
+  padding: calc(max(14px, env(safe-area-inset-top)) + 52px) max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   width: 100%;
   min-height: 0;
   overflow-y: auto;
@@ -477,7 +477,7 @@
   position: relative;
   z-index: 15;
   margin-top: auto;
-  margin-bottom: 8px;
+  margin-bottom: max(10px, env(safe-area-inset-bottom));
   flex-shrink: 0;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   animation: bounceHint 2.4s ease-in-out infinite;
@@ -515,7 +515,7 @@
   display: flex;
   flex-direction: column;
   z-index: 60;
-  padding: 14px 18px;
+  padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   gap: 12px;
   box-shadow: 0 -20px 60px var(--glass-shadow);
   touch-action: pan-y;
@@ -681,6 +681,7 @@
   backdrop-filter: blur(var(--blur)) saturate(180%);
   -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
   flex-shrink: 0;
+  margin-bottom: max(2px, env(safe-area-inset-bottom));
 }
 
 .micSmall {
@@ -718,7 +719,7 @@
   border: none;
   outline: none;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--foreground);
   padding: 6px 6px;
 }
