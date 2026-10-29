@@ -69,29 +69,21 @@ export default function AviApp() {
   // Estados de interacción fluida
   const [chatExpanded, setChatExpanded] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [theme, setTheme] = useState<"dark" | "light">(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("avi_theme");
-        if (saved === "light" || saved === "dark") return saved;
-      } catch {
-        // ignore
-      }
-    }
-    return "dark";
-  });
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
 
-  const [waveStyle, setWaveStyle] = useState<WaveStyle>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("avi_wave_style");
-        if (saved === "fluid" || saved === "bars" || saved === "orbital") return saved;
-      } catch {
-        // ignore
-      }
+  const [waveStyle, setWaveStyle] = useState<WaveStyle>("fluid");
+
+  // Preferencias guardadas: se leen después de hidratar (evita el mismatch de SSR)
+  useEffect(() => {
+    try {
+      const savedTheme = localStorage.getItem("avi_theme");
+      if (savedTheme === "light" || savedTheme === "dark") setTheme(savedTheme);
+      const savedWave = localStorage.getItem("avi_wave_style");
+      if (savedWave === "fluid" || savedWave === "bars" || savedWave === "orbital") setWaveStyle(savedWave);
+    } catch {
+      // ignore
     }
-    return "fluid";
-  });
+  }, []);
 
   const handleWaveStyleChange = (style: WaveStyle) => {
     setWaveStyle(style);
