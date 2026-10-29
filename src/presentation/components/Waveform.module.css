@@ -1,76 +1,164 @@
-/* Onda de sonido: en vivo con el micrófono, simulada por estado sin permiso */
+/* Visualizador Acústico Moderno de AVI: Canvas Fluido + Glassmorphism */
 
-.wave {
+.container {
   position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.canvasWrapper {
+  position: relative;
+  width: 100%;
+  height: 72px;
+  border-radius: 18px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+  box-shadow: 
+    0 8px 32px -8px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.canvasWrapper[data-active="true"] {
+  border-color: rgba(45, 212, 191, 0.45);
+  box-shadow: 
+    0 10px 36px -6px rgba(45, 212, 191, 0.25),
+    inset 0 1px 0 rgba(45, 212, 191, 0.2);
+}
+
+.canvasWrapper[data-mood="speaking"] {
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: 
+    0 10px 36px -6px rgba(56, 189, 248, 0.25),
+    inset 0 1px 0 rgba(56, 189, 248, 0.2);
+}
+
+.canvasWrapper[data-mood="thinking"] {
+  border-color: rgba(192, 132, 252, 0.4);
+  box-shadow: 
+    0 10px 36px -6px rgba(192, 132, 252, 0.2),
+    inset 0 1px 0 rgba(192, 132, 252, 0.2);
+}
+
+.canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Fila de metadatos inferior */
+.metaRow {
+  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 2px;
-  height: 56px;
-  --amp: 2.5;
-  --speed: 2.2s;
+  justify-content: space-between;
+  padding: 0 4px;
+  font-size: 11px;
 }
 
-.wave[data-mood="listening"] {
-  --amp: 8;
-  --speed: 0.55s;
+/* Chip de estado */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
-.wave[data-mood="thinking"] {
-  --amp: 3.5;
-  --speed: 1.1s;
-}
-
-.wave[data-mood="speaking"] {
-  --amp: 10;
-  --speed: 0.38s;
-}
-
-.wave span {
-  width: 3px;
+.statusDot {
+  width: 6px;
   height: 6px;
-  border-radius: 2px;
-  background: var(--accent);
-  opacity: 0.6;
-  transform: scaleY(var(--h));
-  animation: wave var(--speed) ease-in-out infinite;
-  animation-delay: calc(var(--i) * -0.07s);
-  transition: background-color 0.4s;
-  will-change: transform, opacity;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Con micrófono en vivo manda el nivel real: sin animación CSS */
-.wave.live span {
-  animation: none;
-  opacity: 0.9;
+.statusBadge[data-state="live"] .statusDot {
+  background: #2dd4bf;
+  box-shadow: 0 0 10px #2dd4bf;
+  animation: dotPulse 1.2s ease-in-out infinite;
 }
 
-@keyframes wave {
-  0%,
-  100% {
-    transform: scaleY(0.4);
-    opacity: 0.4;
+.statusBadge[data-state="denied"] .statusDot {
+  background: #f87171;
+  box-shadow: 0 0 8px #f87171;
+}
+
+@keyframes dotPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
   }
   50% {
-    transform: scaleY(var(--amp));
+    transform: scale(1.4);
     opacity: 1;
   }
 }
 
-.denied {
-  position: absolute;
-  top: calc(100% + 2px);
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 11px;
-  color: var(--muted);
-  white-space: nowrap;
+/* Selector sutil de estilos (Pills de cristal) */
+.styleSelector {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .wave span {
-    animation: none;
-    transform: scaleY(3);
-    opacity: 0.7;
-  }
+.styleBtn {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-transform: capitalize;
+}
+
+.styleBtn:hover {
+  color: var(--foreground);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.styleBtnActive {
+  color: #05060a;
+  background: linear-gradient(135deg, #2dd4bf, #38bdf8);
+  box-shadow: 0 2px 8px rgba(45, 212, 191, 0.35);
+  font-weight: 700;
+}
+
+/* Soporte modo claro */
+:global([data-theme="light"]) .canvasWrapper {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 
+    0 10px 30px -10px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+:global([data-theme="light"]) .styleSelector {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+:global([data-theme="light"]) .styleBtnActive {
+  color: #ffffff;
+  background: linear-gradient(135deg, #0d9488, #0284c7);
 }

@@ -26,7 +26,7 @@ import type { Message, Role, View } from "@/domain/types";
 import { aviService } from "@/infrastructure";
 import { CONTEXT_TIERS, HISTORY, ROLE_KEYS, ROLES, SUGGESTIONS } from "@/shared/mock/avi";
 import Face, { EXPRESSIONS, type Expression, type Mood } from "./Face";
-import Waveform from "./Waveform";
+import Waveform, { type WaveStyle } from "./Waveform";
 import styles from "./AviApp.module.css";
 
 const STATUS: Record<Mood, string> = {
@@ -81,8 +81,28 @@ export default function AviApp() {
     return "dark";
   });
 
+  const [waveStyle, setWaveStyle] = useState<WaveStyle>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("avi_wave_style");
+        if (saved === "fluid" || saved === "bars" || saved === "orbital") return saved;
+      } catch {
+        // ignore
+      }
+    }
+    return "fluid";
+  });
+
+  const handleWaveStyleChange = (style: WaveStyle) => {
+    setWaveStyle(style);
+    try {
+      localStorage.setItem("avi_wave_style", style);
+    } catch {
+      // ignore
+    }
+  };
+
   // Estados interactivos estilo avatar lab
-  const [pointer, setPointer] = useState({ x: 0, y: 0 });
   const [isSleeping, setIsSleeping] = useState(false);
   const [pokeCount, setPokeCount] = useState(0);
   const [pokeMessage, setPokeMessage] = useState<string | null>(null);
@@ -90,6 +110,7 @@ export default function AviApp() {
   const lastPokeTime = useRef(0);
   const pokeTimer = useRef<number | null>(null);
   const inactivityTimer = useRef<number | null>(null);
+  const isSleepingRef = useRef(false);
   const hasConversationRef = useRef(false);
   const endRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef<number | null>(null);
@@ -111,36 +132,30 @@ export default function AviApp() {
     hasConversationRef.current = hasConversation;
   }, [hasConversation]);
 
-  // Detección de inactividad para dormir y seguimiento suave del puntero del mouse
   useEffect(() => {
-    let animId = 0;
-    let pendingX = 0;
-    let pendingY = 0;
+    isSleepingRef.current = isSleeping;
+  }, [isSleeping]);
 
+  // Detección de inactividad para dormir (sin re-renders continuos durante el movimiento)
+  useEffect(() => {
     function resetInactivity() {
       if (inactivityTimer.current) {
         window.clearTimeout(inactivityTimer.current);
       }
-      setIsSleeping(false);
+      if (isSleepingRef.current) {
+        setIsSleeping(false);
+      }
 
       // Duerme tras 14 s de inactividad solo si no hay conversación activa ni dictado
       inactivityTimer.current = window.setTimeout(() => {
-        if (!hasConversationRef.current) setIsSleeping(true);
+        if (!hasConversationRef.current) {
+          setIsSleeping(true);
+        }
       }, 14000);
     }
 
-    function onPointerMove(e: PointerEvent) {
+    function onPointerMove() {
       resetInactivity();
-      pendingX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
-      pendingY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
-
-      pendingX = Math.max(-1, Math.min(1, pendingX));
-      pendingY = Math.max(-1, Math.min(1, pendingY));
-
-      cancelAnimationFrame(animId);
-      animId = requestAnimationFrame(() => {
-        setPointer({ x: pendingX, y: pendingY });
-      });
     }
 
     function onUserInteraction() {
@@ -154,7 +169,6 @@ export default function AviApp() {
     resetInactivity();
 
     return () => {
-      cancelAnimationFrame(animId);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("keydown", onUserInteraction);
       window.removeEventListener("click", onUserInteraction);
@@ -295,7 +309,7 @@ export default function AviApp() {
   return (
     <div className={styles.shell}>
       {/* Barra ambiental superior minimalista */}
-      <div className={styles.ambientBar}>
+      <div className={`${styles.ambientBar} ${chatExpanded ? styles.ambientBarHidden : ""}`}>
         <div className={styles.brandLockup}>
           <div className={styles.brandTitle}>
             <span className={styles.dot} />
@@ -476,16 +490,12 @@ export default function AviApp() {
         className={styles.stage}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        onWheel={(e) => {
-          if (e.deltaY > 30) setChatExpanded(true);
-        }}
       >
         <div className={styles.stageGlow} aria-hidden="true" />
 
         <div className={styles.stageFace}>
           <Face
             expression={expression}
-            pointer={pointer}
             pokeCount={pokeCount}
             pokeMessage={pokeMessage}
             onFaceClick={handleFaceClick}
@@ -508,7 +518,12 @@ export default function AviApp() {
           )}
         </div>
 
-        <Waveform mood={mood} micOn={listening} />
+        <Waveform
+          mood={mood}
+          micOn={listening}
+          styleVariant={waveStyle}
+          onStyleChange={handleWaveStyleChange}
+        />
 
         {!hasConversation ? (
           <>
@@ -802,6 +817,34 @@ export default function AviApp() {
                       }}
                     >
                       <Sun size={16} /> Modo Claro (Pastel Milk Glass)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Estilo del Visualizador Acústico */}
+                <div className={styles.settingsSection}>
+                  <span className={styles.settingsSectionTitle}>Gráfica Acústica (Visualizador de Voz)</span>
+                  <div className={styles.roleGrid}>
+                    <button
+                      type="button"
+                      className={`${styles.actionBtn} ${waveStyle === "fluid" ? styles.roleCardActive : ""}`}
+                      onClick={() => handleWaveStyleChange("fluid")}
+                    >
+                      <Radio size={16} /> Aurora Fluida (Líquida continua)
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.actionBtn} ${waveStyle === "bars" ? styles.roleCardActive : ""}`}
+                      onClick={() => handleWaveStyleChange("bars")}
+                    >
+                      <Compass size={16} /> Espectro Holográfico (Barras anime)
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.actionBtn} ${waveStyle === "orbital" ? styles.roleCardActive : ""}`}
+                      onClick={() => handleWaveStyleChange("orbital")}
+                    >
+                      <Flame size={16} /> Orbe Resonante (Pulso concéntrico)
                     </button>
                   </div>
                 </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { type ReactNode } from "react";
+import React, { useEffect, useState, type ReactNode } from "react";
 import styles from "./Face.module.css";
 
 export type Mood = "idle" | "listening" | "thinking" | "speaking" | "sleeping";
@@ -646,7 +646,7 @@ function AnimeZzz() {
 
 export default function Face({
   expression,
-  pointer = { x: 0, y: 0 },
+  pointer,
   pokeCount = 0,
   pokeMessage = null,
   onFaceClick,
@@ -656,13 +656,36 @@ export default function Face({
   const isJoy = expression === "joy";
   const isAnnoyed = expression === "annoyed" || expression === "anger" || pokeCount >= 4;
 
+  const [localPointer, setLocalPointer] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (!interactive || isSleeping) return;
+    let animId = 0;
+    function onPointerMove(e: PointerEvent) {
+      const px = Math.max(-1, Math.min(1, (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2)));
+      const py = Math.max(-1, Math.min(1, (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2)));
+      cancelAnimationFrame(animId);
+      animId = requestAnimationFrame(() => {
+        setLocalPointer({ x: px, y: py });
+      });
+    }
+
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("pointermove", onPointerMove);
+    };
+  }, [interactive, isSleeping]);
+
+  const activePointer = pointer ?? localPointer;
+
   // Seguimiento suave del puntero (amortiguado)
-  const gazeX = isSleeping ? 0 : expression === "thinking" ? 3.5 : pointer.x * 9.5;
-  const gazeY = isSleeping ? 2 : expression === "thinking" ? -3.5 : pointer.y * 6;
+  const gazeX = isSleeping ? 0 : expression === "thinking" ? 3.5 : activePointer.x * 9.5;
+  const gazeY = isSleeping ? 2 : expression === "thinking" ? -3.5 : activePointer.y * 6;
 
   // Inclinación 3D sutil hacia el mouse
-  const tiltX = (pointer.y * -6).toFixed(2);
-  const tiltY = (pointer.x * 8).toFixed(2);
+  const tiltX = (activePointer.y * -6).toFixed(2);
+  const tiltY = (activePointer.x * 8).toFixed(2);
 
   const palette = PALETTES[expression] || PALETTES.idle;
 

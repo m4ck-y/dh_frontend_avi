@@ -9,9 +9,9 @@ AVI redefine la interacción entre el usuario y un agente de IA de salud:
 
 1. **Escenario Protagonista (Stage-First):**
    * El rostro anime de AVI y su campo de sonido son el núcleo visual. No hay cabeceras web obsoletas ni barras laterales permanentes que resten inmersión.
-   * La mirada de AVI sigue el cursor en tiempo real con perspectiva 3D, respira suavemente y parpadea con naturalidad.
-   * Cuenta con **física de descanso**: tras 14 s de inactividad duerme plácidamente (`sleeping` con Zzz flotantes). Al mover el cursor o interactuar, despierta.
-   * **Mecánica de carisma anime:** si el usuario la toca repetidamente en rápida sucesión, AVI se ruboriza y se molesta temporalmente con un puchero y su marca de tensión anime (`💢`).
+   * La mirada de AVI sigue el cursor en tiempo real con perspectiva 3D, respira suavemente y parpadea con naturalidad según las leyes del **comportamiento biológico** (sacadas sacádicas y parpadeo estocástico; ver `docs/BIOLOGICAL_BEHAVIOR.md`).
+   * Cuenta con **física de descanso**: tras 14 s de inactividad duerme plácidamente (`sleeping` con Zzz flotantes y burbuja nasal anime). Al mover el cursor o interactuar, despierta.
+   * **Mecánica de carisma anime:** si el usuario la toca repetidamente en rápida sucesión, AVI se ruboriza y se molesta temporalmente con un puchero, colmillo *yaeba* y su marca de tensión anime (`💢`).
 
 2. **Transición Gestual a Conversación (Push-Up / Swipe Drawer):**
    * La conversación escrita no compite con el escenario: vive en una sábana (*Sheet*) deslizante de cristal.
@@ -39,7 +39,7 @@ AVI redefine la interacción entre el usuario y un agente de IA de salud:
 flowchart TD
     subgraph Escenario ["Escenario Protagonista (Full Stage)"]
         Face["Rostro Anime + Eye Tracking"]
-        Wave["Onda de Voz Real (48 barras)"]
+        Wave["Visualizador Acústico HD (Aurora / Espectro / Orbe)"]
         Mic["Micrófono Grande Central"]
         GesturePrompt["Barra Gestual: ▲ Desliza para conversar"]
     end
@@ -84,14 +84,14 @@ stateDiagram-v2
     annoyed --> idle : Enfriamiento (3.8 s)
 ```
 
-| Estado | Gatillador | Expresión Anime | Onda | Comportamiento |
+| Estado | Gatillador | Expresión Anime | Visualizador Acústico | Comportamiento |
 |---|---|---|---|---|
-| `idle` | Reposo | Ojos amables, mirada errante, parpadeo | Simulación suave | Sigue el puntero del mouse |
-| `sleeping` | 14 s inactividad | Ojos cerrados `˘ ˘`, letras `Zzz` flotando | Reposo bajo | Respiración profunda, no sigue mouse |
-| `annoyed` | Toques rápidos (≥4) | Ceño fruncido, ojos afilados, marca `💢`, sacudida | Media | Globo de texto cómico de protesta |
-| `listening` | Micrófono abierto | Ojos atentos curiosos, boca en "o" pulsante | **Audio real (AnalyserNode)** | Micrófono iluminado en cyan pulsante |
-| `thinking` | Procesando consulta | Mirada alzada reflexiva, ceja asimétrica | Media (1.1 s) | Evaluación de contexto según rol |
-| `speaking` | Emitiendo respuesta | Boca anime hablando sincronizada | Dinámica (0.38 s) | Parpadeo ágil de habla |
+| `idle` | Reposo | Ojos amables, mirada errante, parpadeo | Ondas suaves fluidas | Sigue el puntero del mouse |
+| `sleeping` | 14 s inactividad | Ojos cerrados `˘ ˘`, letras `Zzz` flotando | Respiración casi plana | Respiración profunda, no sigue mouse |
+| `annoyed` | Toques rápidos (≥4) | Ceño fruncido, ojos afilados, marca `💢`, sacudida | Onda tensa vibrante | Globo de texto cómico de protesta |
+| `listening` | Micrófono abierto | Ojos atentos curiosos, boca en "o" pulsante | **FFT de voz en vivo (Canvas 60 FPS)** | Micrófono iluminado en cyan pulsante |
+| `thinking` | Procesando consulta | Mirada alzada reflexiva, ceja asimétrica | Pulso rítmico medio | Evaluación de contexto según rol |
+| `speaking` | Emitiendo respuesta | Boca anime hablando sincronizada | Modulación dinámica vigorosa | Parpadeo ágil de habla |
 
 ---
 

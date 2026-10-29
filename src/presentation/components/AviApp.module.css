@@ -2,7 +2,7 @@
 
 .shell {
   position: relative;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   height: 100dvh;
   max-width: 1100px;
@@ -15,14 +15,21 @@
 /* Barra superior ambiental discreta */
 .ambientBar {
   position: absolute;
-  top: 16px;
-  left: 18px;
-  right: 18px;
+  top: 14px;
+  left: 14px;
+  right: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   z-index: 50;
   pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.ambientBarHidden {
+  opacity: 0;
+  pointer-events: none !important;
+  transform: translateY(-8px);
 }
 
 .brandLockup {
@@ -121,6 +128,7 @@
 }
 
 .fabTrigger {
+  position: relative;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -134,8 +142,9 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  touch-action: manipulation;
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
-  z-index: 60;
+  z-index: 70;
 }
 
 .fabTrigger:hover {
@@ -160,6 +169,8 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   z-index: 55;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
 /* Menú orbital fanning out con estilo frosted glass */
@@ -171,7 +182,7 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 10px;
-  z-index: 60;
+  z-index: 65;
 }
 
 .radialItem {
@@ -183,6 +194,9 @@
   cursor: pointer;
   font-family: inherit;
   outline: none;
+  touch-action: manipulation;
+  position: relative;
+  z-index: 66;
 }
 
 .radialLabel {
@@ -237,13 +251,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  justify-content: flex-start;
+  gap: 10px;
   position: relative;
-  padding: 40px 16px 20px;
+  padding: 68px 16px 24px;
   width: 100%;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   user-select: none;
 }
 
@@ -266,10 +283,11 @@
 }
 
 .stageFace {
-  width: min(52%, 360px);
-  max-height: 40vh;
+  width: min(52%, 340px);
+  max-height: 32vh;
   z-index: 2;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
 }
 
 .presenceMeta {
@@ -346,6 +364,7 @@
 }
 
 .bigMic {
+  position: relative;
   width: 74px;
   height: 74px;
   border-radius: 50%;
@@ -358,6 +377,9 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  touch-action: manipulation;
+  z-index: 10;
+  flex-shrink: 0;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
   box-shadow: var(--glass-inset), 0 12px 36px var(--glass-shadow);
 }
@@ -399,10 +421,12 @@
   gap: 8px;
   justify-content: center;
   max-width: 580px;
-  z-index: 2;
+  z-index: 10;
+  flex-shrink: 0;
 }
 
 .chip {
+  position: relative;
   font-size: 13px;
   font-weight: 500;
   color: var(--muted);
@@ -413,6 +437,8 @@
   padding: 8px 16px;
   font-family: inherit;
   cursor: pointer;
+  touch-action: manipulation;
+  z-index: 10;
   backdrop-filter: blur(14px) saturate(180%);
   -webkit-backdrop-filter: blur(14px) saturate(180%);
   transition: color 0.2s, border-color 0.2s, background-color 0.2s, transform 0.2s, box-shadow 0.2s;
@@ -447,8 +473,12 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  z-index: 10;
+  touch-action: manipulation;
+  position: relative;
+  z-index: 15;
   margin-top: auto;
+  margin-bottom: 8px;
+  flex-shrink: 0;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   animation: bounceHint 2.4s ease-in-out infinite;
 }
@@ -484,10 +514,11 @@
   -webkit-backdrop-filter: blur(36px) saturate(190%);
   display: flex;
   flex-direction: column;
-  z-index: 40;
+  z-index: 60;
   padding: 14px 18px;
   gap: 12px;
   box-shadow: 0 -20px 60px var(--glass-shadow);
+  touch-action: pan-y;
 }
 
 /* Cabecera del avatar compañero en modo chat */
@@ -507,6 +538,9 @@
   user-select: none;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   flex-shrink: 0;
+  position: relative;
+  z-index: 62;
+  touch-action: manipulation;
 }
 
 .companionHeader:hover {
