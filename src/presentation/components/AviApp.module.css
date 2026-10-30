@@ -5,7 +5,7 @@
   width: 100%;
   height: 100vh;
   height: 100dvh;
-  max-width: 1100px;
+  max-width: 1500px;
   margin: 0 auto;
   overflow: hidden;
   display: flex;
@@ -300,10 +300,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 10px;
   position: relative;
-  padding: calc(max(14px, env(safe-area-inset-top)) + 52px) max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  padding: calc(max(14px, env(safe-area-inset-top)) + 50px) max(16px, env(safe-area-inset-right)) calc(max(16px, env(safe-area-inset-bottom)) + 56px) max(16px, env(safe-area-inset-left));
   width: 100%;
+  height: 100%;
   min-height: 0;
   overflow: hidden;
   user-select: none;
@@ -328,11 +329,16 @@
 }
 
 .stageFace {
-  width: min(68%, 380px);
-  max-height: 42vh;
+  width: min(90vw, calc((100vh - 270px) * 1.44), 540px);
+  max-width: 540px;
+  max-height: calc(100vh - 270px);
+  aspect-ratio: 260 / 180;
   z-index: 2;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  flex-shrink: 0;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .presenceMeta {
@@ -503,11 +509,15 @@
 
 /* Barra gestual inferior con efecto vidrio líquido */
 .gestureBar {
+  position: absolute;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 22px;
+  padding: 10px 24px;
   border-radius: 999px;
   background: var(--glass-strong);
   border: 1px solid var(--glass-border);
@@ -519,11 +529,8 @@
   font-weight: 600;
   cursor: pointer;
   touch-action: manipulation;
-  position: relative;
   z-index: 15;
-  margin-top: auto;
-  margin-bottom: max(10px, env(safe-area-inset-bottom));
-  flex-shrink: 0;
+  white-space: nowrap;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   animation: bounceHint 2.4s ease-in-out infinite;
 }
@@ -532,13 +539,13 @@
   border-color: var(--accent);
   background: var(--accent-soft);
   color: var(--accent);
-  transform: translateY(-3px);
+  transform: translateX(-50%) translateY(-3px);
   box-shadow: var(--glass-inset), 0 0 20px var(--accent-glow);
 }
 
 @keyframes bounceHint {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-4px); }
 }
 
 .gestureChevron {
@@ -548,6 +555,18 @@
 @keyframes chevronPulse {
   from { opacity: 0.6; transform: translateY(1px); }
   to { opacity: 1; transform: translateY(-2px); }
+}
+
+/* Telón de fondo para cerrar conversación al hacer clic afuera */
+.chatBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 16, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 58;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
 /* Modo Conversación Extendido (Sliding Frosted Glass Sheet) */
@@ -1251,19 +1270,19 @@
   border-color: var(--accent);
 }
 
-/* Modo Desktop Split View: El avatar sigue vivo a la izquierda mientras el chat abre a la derecha */
-@media (min-width: 900px) {
+/* Modo Lateral y Escalado Dinámico: Cuando hay espacio lateral el chat abre como panel derecho */
+@media (min-width: 820px) {
   .shell {
-    max-width: 1280px;
+    max-width: 1500px;
   }
 
   .chatSheet {
     position: absolute;
     top: max(14px, env(safe-area-inset-top));
     bottom: max(14px, env(safe-area-inset-bottom));
-    right: 24px;
+    right: 20px;
     left: auto;
-    width: 480px;
+    width: min(480px, 42vw);
     height: auto;
     border-radius: 28px;
     border: 1px solid var(--glass-border);
@@ -1271,8 +1290,35 @@
   }
 
   .stageFace {
-    width: min(52%, 420px);
-    max-height: 48vh;
+    width: min(76vw, calc((100vh - 260px) * 1.44), 660px);
+    max-width: 660px;
+    max-height: calc(100vh - 260px);
+  }
+}
+
+/* Pantallas grandes (hasta 1500px): Mayor protagonismo y presencia visual del rostro de AVI */
+@media (min-width: 1100px) and (min-height: 750px) {
+  .stageFace {
+    width: min(72vw, calc((100vh - 250px) * 1.44), 740px);
+    max-width: 740px;
+    max-height: calc(100vh - 250px);
+  }
+
+  .chatSheet {
+    width: min(500px, 38vw);
+  }
+}
+
+/* Pantallas ultra-anchas (> 1500px): Límite visual óptimo para mantener armonía */
+@media (min-width: 1500px) {
+  .shell {
+    max-width: 1500px;
+  }
+
+  .stageFace {
+    width: min(55vw, calc((100vh - 250px) * 1.44), 750px);
+    max-width: 750px;
+    max-height: calc(100vh - 250px);
   }
 }
 

@@ -637,18 +637,31 @@ export default function AviApp() {
         </button>
       </main>
 
-      {/* Modo Conversación Deslizante (Chat Sheet) */}
+      {/* Modo Conversación Deslizante (Chat Sheet con click-outside) */}
       <AnimatePresence>
         {chatExpanded && (
-          <motion.div
-            className={styles.chatSheet}
-            initial={{ y: "100%", opacity: 0.5 }}
-            animate={{ y: "0%", opacity: 1 }}
-            exit={{ y: "100%", opacity: 0 }}
-            transition={{ type: "spring", stiffness: 320, damping: 30 }}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleCompanionTouchEnd}
-          >
+          <>
+            {/* Telón backdrop para cerrar al hacer clic afuera del chat */}
+            <motion.div
+              className={styles.chatBackdrop}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setChatExpanded(false)}
+              aria-label="Cerrar conversación al hacer clic afuera"
+            />
+
+            <motion.div
+              className={styles.chatSheet}
+              initial={{ y: "100%", opacity: 0.5 }}
+              animate={{ y: "0%", opacity: 1 }}
+              exit={{ y: "100%", opacity: 0 }}
+              transition={{ type: "spring", stiffness: 320, damping: 30 }}
+              onClick={(e) => e.stopPropagation()}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleCompanionTouchEnd}
+            >
             {/* Cabecera del compañero avatar */}
             <div
               className={styles.companionHeader}
@@ -742,8 +755,9 @@ export default function AviApp() {
               </button>
             </footer>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </>
+      )}
+    </AnimatePresence>
 
       {/* Modal Flotante de Ajustes & Test Settings */}
       <AnimatePresence>
