@@ -399,7 +399,7 @@ function AnimeBrows({ expression }: { expression: Expression }) {
 }
 
 /* Bocas anime expresivas y finas con estética manga y trazo limpio */
-function AnimeMouth({ expression, mouthScale }: { expression: Expression; mouthScale?: MotionValue<number> }) {
+function AnimeMouth({ expression }: { expression: Expression }) {
   switch (expression) {
     case "sleeping":
       return (
@@ -430,37 +430,27 @@ function AnimeMouth({ expression, mouthScale }: { expression: Expression; mouthS
 
     case "listening":
       return (
-        <motion.g
-          className={mouthScale ? `${styles.mouthWrapper} ${styles.mouthSynced}` : `${styles.mouthWrapper} ${styles.mouthOoh}`}
-          style={mouthScale ? { scaleY: mouthScale } : undefined}
-        >
-          {/* Boca atenta anime fina y receptiva (curva dulce entreabierta) */}
-          <path
-            d="M 123.5 140.5 Q 127 139.5 130 140 Q 133 139.5 136.5 140.5"
+        <g className={`${styles.mouthWrapper} ${styles.mouthOoh}`}>
+          {/* Boquita anime atenta y receptiva: estilo curiosa (・o・) con trazo limpio */}
+          <ellipse
+            cx="130"
+            cy="142"
+            rx="4.6"
+            ry="5.2"
+            fill="url(#anime-mouth-cavity)"
             stroke="currentColor"
             strokeWidth="1.8"
-            fill="none"
-            strokeLinecap="round"
           />
-          {/* Apertura sutil suavemente redondeada (escucha atenta) */}
+          {/* Pequeño diente superior nítido */}
           <path
-            d="M 126 141.5 Q 130 144.2 134 141.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            fill="none"
-            strokeLinecap="round"
+            d="M 126.8 139.2 Q 130 138.2 133.2 139.2 C 132.5 140.6, 131.2 141, 130 141 C 128.8 141, 127.5 140.6, 126.8 139.2 Z"
+            fill="#ffffff"
           />
-          {/* Toque de brillo/rubor en labio inferior */}
-          <ellipse cx="130" cy="144.5" rx="2.2" ry="0.9" fill="currentColor" opacity="0.25" />
-          <path
-            d="M 128.5 146.5 Q 130 147 131.5 146.5"
-            stroke="currentColor"
-            strokeWidth="1.2"
-            fill="none"
-            strokeLinecap="round"
-            opacity="0.45"
-          />
-        </motion.g>
+          {/* Lengüita suave rosada */}
+          <ellipse cx="130" cy="145.2" rx="3" ry="1.6" fill="url(#anime-tongue-grad)" />
+          {/* Sombra de labio inferior y destello */}
+          <ellipse cx="130" cy="149.2" rx="2.4" ry="0.9" fill="currentColor" opacity="0.3" />
+        </g>
       );
 
     case "annoyed":
@@ -879,11 +869,6 @@ export default function Face({
   const tiltX = (activePointer.y * -6).toFixed(2);
   const tiltY = (activePointer.x * 8).toFixed(2);
 
-  // Boca sincronizada a la energía de voz (real en dictado, simulada por mood)
-  const mouthFallback = useMotionValue(0);
-  const mouthSpring = useSpring(mouthLevel ?? mouthFallback, { stiffness: 260, damping: 22 });
-  const mouthScale = useTransform(mouthSpring, (v) => 0.6 + v * 0.8);
-
   const palette = PALETTES[expression] || PALETTES.idle;
 
   return (
@@ -1161,7 +1146,7 @@ export default function Face({
               exit={{ opacity: 0, scale: 0.93, y: -1.5 }}
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             >
-              <AnimeMouth expression={expression} mouthScale={mouthLevel ? mouthScale : undefined} />
+              <AnimeMouth expression={expression} />
             </motion.g>
           </AnimatePresence>
         </g>
