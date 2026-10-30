@@ -655,38 +655,32 @@ function AnimeMouth({ expression, mouthScale }: { expression: Expression; mouthS
 
     case "speaking":
       return (
-        <motion.g
-          className={mouthScale ? `${styles.mouthWrapper} ${styles.mouthSynced}` : `${styles.mouthWrapper} ${styles.mouthTalk}`}
-          style={mouthScale ? { scaleY: mouthScale } : undefined}
-        >
-          {/* Contorno limpio estilizado anime modulando visemas */}
+        <g className={`${styles.mouthWrapper} ${styles.mouthTalk}`}>
+          {/* Contorno limpio estilizado anime modulando visemas fluidos */}
           <path
-            d="M 120 137.5 Q 130 135.5 140 137.5 C 140.5 147, 136 152, 130 152 C 124 152, 119.5 147, 120 137.5 Z"
+            d="M 121 138 Q 130 136 139 138 C 140 146.5, 136 151, 130 151 C 124 151, 120 146.5, 121 138 Z"
             fill="url(#anime-mouth-cavity)"
             stroke="currentColor"
             strokeWidth="1.8"
             strokeLinejoin="round"
           />
-          {/* Dientes superiores limpios */}
+          {/* Dientes superiores con línea limpia */}
           <path
-            d="M 121 137.8 Q 130 136.2 139 137.8 C 136.5 140.5, 133.5 141.2, 130 141.2 C 126.5 141.2, 123.5 140.5, 121 137.8 Z"
+            d="M 122 138.2 Q 130 136.8 138 138.2 C 136 140.4, 133 141, 130 141 C 127 141, 124 140.4, 122 138.2 Z"
             fill="#ffffff"
           />
-          {/* Lengua anime suave */}
-          <path
-            d="M 123 149 C 124 145, 127 143.5, 130 143.5 C 133 143.5, 136 145, 137 149 C 134.5 151.2, 132 152, 130 152 C 128 152, 125.5 151.2, 123 149 Z"
-            fill="url(#anime-tongue-grad)"
-          />
+          {/* Lengua anime suave rosada */}
+          <ellipse cx="130" cy="148" rx="4.5" ry="2.6" fill="url(#anime-tongue-grad)" />
           {/* Sombra de labio inferior */}
           <path
-            d="M 128.5 154.5 Q 130 155 131.5 154.5"
+            d="M 128.5 153.5 Q 130 154 131.5 153.5"
             stroke="currentColor"
-            strokeWidth="1.3"
+            strokeWidth="1.2"
             fill="none"
             strokeLinecap="round"
             opacity="0.5"
           />
-        </motion.g>
+        </g>
       );
 
     default:
@@ -743,28 +737,28 @@ function AnimeZzz() {
   );
 }
 
-/* Gotita de sudor anime para Pensando / Dudando (Anime Sweatdrop) */
+/* Gotita de sudor anime para Pensando / Dudando (Anime Sweatdrop en la sien) */
 function AnimeSweatdrop() {
   return (
-    <g className={styles.sweatdropGroup}>
+    <g className={styles.sweatdropGroup} transform="translate(196 44)">
       <path
-        d="M 196 46 C 192 53, 190 57, 190 61 C 190 66, 194 70, 198 70 C 202 70, 206 66, 206 61 C 206 57, 204 53, 196 46 Z"
+        d="M 0 -11 C -4 -4, -6 0, -6 4 C -6 9, -2 13, 2 13 C 6 13, 10 9, 10 4 C 10 0, 8 -4, 0 -11 Z"
         fill="url(#anime-sweat-grad)"
         stroke="rgba(125, 211, 252, 0.85)"
         strokeWidth="1.2"
         className={styles.sweatdropBody}
       />
-      <ellipse cx="200" cy="63" rx="1.8" ry="3" fill="#ffffff" opacity="0.85" transform="rotate(-20 200 63)" />
+      <ellipse cx="3" cy="5" rx="1.5" ry="2.4" fill="#ffffff" opacity="0.85" transform="rotate(-20 3 5)" />
     </g>
   );
 }
 
-/* Burbuja nasal de respiración anime al dormir */
+/* Burbuja nasal de respiración anime al dormir centrada en la nariz */
 function AnimeSleepBubble() {
   return (
-    <g className={styles.sleepBubbleGroup}>
-      <circle cx="136" cy="112" r="9" fill="url(#anime-bubble-grad)" stroke="rgba(196, 181, 253, 0.7)" strokeWidth="1.2" />
-      <ellipse cx="133.5" cy="109" rx="2.5" ry="1.5" fill="#ffffff" opacity="0.85" transform="rotate(-25 133.5 109)" />
+    <g className={styles.sleepBubbleGroup} transform="translate(136 112)">
+      <circle cx="0" cy="0" r="9" fill="url(#anime-bubble-grad)" stroke="rgba(196, 181, 253, 0.7)" strokeWidth="1.2" />
+      <ellipse cx="-2.5" cy="-3" rx="2.5" ry="1.5" fill="#ffffff" opacity="0.85" transform="rotate(-25 -2.5 -3)" />
     </g>
   );
 }
@@ -1167,7 +1161,7 @@ export default function Face({
               exit={{ opacity: 0, scale: 0.93, y: -1.5 }}
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             >
-              <AnimeMouth expression={expression} mouthScale={mouthScale} />
+              <AnimeMouth expression={expression} mouthScale={mouthLevel ? mouthScale : undefined} />
             </motion.g>
           </AnimatePresence>
         </g>

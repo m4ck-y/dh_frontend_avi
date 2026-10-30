@@ -373,11 +373,11 @@
 
 @keyframes angerPulse {
   0% {
-    transform: translate(198px, 42px) scale(0.9) rotate(-4deg);
+    transform: scale(0.9) rotate(-4deg);
     opacity: 0.85;
   }
   100% {
-    transform: translate(198px, 42px) scale(1.2) rotate(6deg);
+    transform: scale(1.18) rotate(6deg);
     opacity: 1;
   }
 }
@@ -492,8 +492,9 @@
 
 /* Gotita de sudor anime (Thinking / Nervous) */
 .sweatdropGroup {
+  transform-box: fill-box;
+  transform-origin: center top;
   animation: sweatDropWobble 2.4s ease-in-out infinite;
-  transform-origin: top center;
 }
 
 .sweatdropBody {
@@ -501,21 +502,22 @@
 }
 
 @keyframes sweatDropWobble {
-  0%, 100% { transform: translate(196px, 52px) rotate(0deg) scale(1); }
-  35% { transform: translate(196px, 54px) rotate(-4deg) scale(1.05); }
-  70% { transform: translate(196px, 51px) rotate(3deg) scale(0.96); }
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  35% { transform: translateY(2px) rotate(-4deg) scale(1.05); }
+  70% { transform: translateY(-0.8px) rotate(3deg) scale(0.96); }
 }
 
 /* Burbuja nasal de respiración anime al dormir */
 .sleepBubbleGroup {
-  animation: sleepBubbleInflate 4.2s ease-in-out infinite;
+  transform-box: fill-box;
   transform-origin: center;
+  animation: sleepBubbleInflate 4.2s ease-in-out infinite;
   filter: drop-shadow(0 0 10px rgba(196, 181, 253, 0.5));
 }
 
 @keyframes sleepBubbleInflate {
-  0%, 100% { transform: translate(136px, 112px) scale(0.4); opacity: 0.3; }
-  50% { transform: translate(136px, 112px) scale(1.25); opacity: 0.95; }
+  0%, 100% { transform: scale(0.4); opacity: 0.3; }
+  50% { transform: scale(1.22); opacity: 0.95; }
 }
 
 
