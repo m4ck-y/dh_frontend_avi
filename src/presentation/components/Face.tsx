@@ -815,12 +815,6 @@ export default function Face({
         </div>
       )}
 
-      {/* Halo / Pedestal Holográfico reactivo */}
-      <div className={styles.hologramBase} aria-hidden="true">
-        <div className={styles.hologramBeam} />
-        <div className={styles.hologramRing} />
-      </div>
-
       <svg
         viewBox="0 0 260 180"
         className={styles.face}

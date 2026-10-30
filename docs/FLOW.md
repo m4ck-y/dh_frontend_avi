@@ -119,11 +119,11 @@ Para usuarios de escritorio y power users, AVI ofrece control por teclado sin fr
 
 AVI adapta su arquitectura espacial según el tamaño de la pantalla:
 
-1. **Pantallas Móviles (`< 900px`):**
-   * **Modo Escenario:** AVI ocupa el centro de la pantalla con pedestal holográfico y barra de telemetría.
+1. **Pantallas Móviles (`< 820px`):**
+   * **Modo Escenario:** AVI ocupa el centro de la pantalla con su rostro anime dinámico y visualizador acústico puro.
    * **Modo Conversación:** Deslizar hacia arriba despliega la sábana de chat a pantalla completa con cabecera de avatar miniatura activa (`Companion Header`) que mantiene la mirada y el estado sincronizados.
-2. **Pantallas de Escritorio y Tablets (`≥ 900px`):**
-   * **Modo Split Screen Inteligente:** Al pulsar el botón de conversación o presionar `/`, el chat no oculta el avatar. Se despliega como un dock lateral de cristal a la derecha ($480\text{ px}$), mientras AVI y su pedestal holográfico permanecen visibles, activos e interactivos a la izquierda.
+2. **Pantallas de Escritorio y Tablets (`≥ 820px`):**
+   * **Modo Split Screen Inteligente:** Al pulsar el botón de conversación o presionar `/`, el chat no oculta el avatar. Se despliega como un dock lateral de cristal a la derecha ($480\text{ px}$), mientras AVI permanece visible, activo e interactivo a la izquierda (con cierre automático al hacer clic afuera en el escenario).
 
 ---
 

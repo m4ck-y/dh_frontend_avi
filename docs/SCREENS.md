@@ -20,8 +20,6 @@ Diseño cinematográfico inmersivo:
 │                    │  ◉        ◉  │   ← Centro puro:   │
 │                    │      ⌣       │     Rostro Anime   │
 │                    ╰──────────────╯     con física 3D  │
-│                 ⎧────────────────────⎫                 │
-│                 ⎩ ═══ Halo 3D ═══ ⎭                 │ ← Halo holográfico
 │                                                        │
 │                    ▁▂▃▅▇▅▃▂▁▂▃▅▇▅▃▂                    │ ← Visualizador acústico HD
 │                                                        │
@@ -39,9 +37,7 @@ Diseño cinematográfico inmersivo:
 | `ThemeToggle` | Control de tema | Alterna modo oscuro obsidiana y claro pastel (tecla `T`). |
 | `FabTrigger` | Botón radial flotante | Despliega el abanico circular de satélites de navegación. |
 | `StageFace` | Rostro Anime | Sacadas biológicas estocásticas, parpadeo Poisson natural y seguimiento 3D. |
-| `HologramBase`| Pedestal holográfico | Anillo elíptico 3D y haz luminoso pulsante reactivo al estado emocional. |
-| `TelemetryBar`| Telemetría biológica | Monitor con BPM dinámico, sincronización neural y estado biológico. |
-| `QuickEmotions`| Tira de reacciones | Acceso directo a emociones: Alegría, Pensar, Sorpresa, Molesta, Calma. |
+| `TelemetryPill`| Telemetría biológica | Monitor con BPM dinámico, sincronización neural y estado biológico en cabecera. |
 | `Waveform` | Oscilograma | Selector de 3 estilos: Fluido líquido, Barras FFT, Anillos orbitales. |
 | `BigMic` | Botón de voz | Activa captura de voz; se ilumina en cyan con pulso de resplandor. |
 | `GestureBar` | Tirador gestual | `Swipe Up`, clic o tecla `/` para abrir la conversación. |
@@ -144,16 +140,16 @@ En computadoras y pantallas amplias, la hoja de chat no cubre la pantalla comple
 │         │  ◉        ◉  │              │ [ ◉ ⌣ ◉ ] AVI · En línea     │ │
 │         │      ⌣       │              ├──────────────────────────────┤ │
 │         ╰──────────────╯              │ AVI: Hola, ¿en qué te ayudo? │ │
-│      ⎧────────────────────⎫           │                              │ │
-│      ⎩ ═══ Halo 3D ═══ ⎭           │ Tú: Revisa mi glucosa de hoy │ │
 │                                       │                              │ │
-│   [[Activity] 72 BPM │ [Settings] 99.6% SYNC]          │ AVI: Tus registros muestran  │ │
-│   [[Sparkles] Alegría][[Brain] Pensar][[Flame]]          │ un promedio de 98 mg/dL.     │ │
+│                                       │ Tú: Revisa mi glucosa de hoy │ │
+│                                       │                              │ │
+│                                       │ AVI: Tus registros muestran  │ │
+│                                       │ un promedio de 98 mg/dL.     │ │
 │                                       │                              │ │
 │       ▁▂▃▅▇▅▃▂▁▂▃▅▇▅▃▂                │                              │ │
 │                                       │ ╭──────────────────────────╮ │ │
 │            ( 🎙 )                     │ │(🎙)[ Escribe aquí… ][Env]│ │ │
-│       Toca para hablar                │ ╰──────────────────────────╯ │ │
+│                                       │ ╰──────────────────────────╯ │ │
 │                                       ╰──────────────────────────────╯ │
 └────────────────────────────────────────────────────────────────────────┘
 ```

@@ -122,6 +122,6 @@ Documentación del rediseño para maximizar el protagonismo del rostro y la inme
    * La onda visual acústica permanece viva y reactiva, pero sus botones de cambio de estilo (Fluido / Barras / Orbital) se trasladan al panel de *Ajustes y Simulación (`test_settings`)*.
 5. **Limpieza Total de Textos e Instrucciones del Escenario:**
    * Se eliminan el título `"Hola, soy AVI"`, las instrucciones redundantes (`"Toca el micrófono y háblame..."`), el pie de acción y los chips de sugerencias del escenario.
-   * El escenario queda limpio: **Rostro Anime + Halo Holográfico + Visualizador Acústico + Micrófono Protagonista + Tirador Gestual Discreto**.
+   * El escenario queda limpio: **Rostro Anime Puro + Visualizador Acústico Flotante + Micrófono Protagonista + Tirador Gestual Discreto**.
 
 

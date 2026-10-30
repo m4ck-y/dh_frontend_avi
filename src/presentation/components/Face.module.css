@@ -501,47 +501,6 @@
   50% { transform: translate(136px, 112px) scale(1.25); opacity: 0.95; }
 }
 
-/* Pedestal / Halo Holográfico reactivo */
-.hologramBase {
-  position: absolute;
-  bottom: -18px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 78%;
-  height: 28px;
-  pointer-events: none;
-  z-index: -1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hologramRing {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  border: 1.5px solid var(--accent);
-  box-shadow: 0 0 20px var(--accent-glow), inset 0 0 12px var(--accent-glow);
-  opacity: 0.65;
-  transform: rotateX(72deg);
-  animation: ringPulse 3.2s ease-in-out infinite;
-}
-
-.hologramBeam {
-  position: absolute;
-  top: -40px;
-  width: 60%;
-  height: 48px;
-  background: radial-gradient(ellipse at bottom, var(--accent-glow), transparent 75%);
-  filter: blur(12px);
-  opacity: 0.55;
-}
-
-@keyframes ringPulse {
-  0%, 100% { opacity: 0.45; transform: rotateX(72deg) scale(0.96); }
-  50% { opacity: 0.85; transform: rotateX(72deg) scale(1.04); }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .faceWrapper,

@@ -15,16 +15,16 @@
 .canvasWrapper {
   position: relative;
   width: 100%;
-  height: 84px;
+  height: 140px;
   background: transparent;
   border: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   overflow: visible;
   box-shadow: none;
-  /* Desvanecimiento suave y progresivo hacia los laterales para eliminar cortes bruscos */
-  mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.8) 12%, #000 24%, #000 76%, rgba(0, 0, 0, 0.8) 88%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.8) 12%, #000 24%, #000 76%, rgba(0, 0, 0, 0.8) 88%, transparent 100%);
+  /* Desvanecimiento suave y progresivo en 4 direcciones (horizontal y vertical) para eliminar cortes en los bordes */
+  mask-image: radial-gradient(ellipse 92% 78% at 50% 50%, #000 45%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 92% 78% at 50% 50%, #000 45%, transparent 100%);
   pointer-events: none;
   transition: opacity 0.3s ease;
 }

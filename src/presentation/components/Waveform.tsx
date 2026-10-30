@@ -396,7 +396,7 @@ export default function Waveform({
         if ((level > 0.32 || Math.random() < 0.04) && now - lastShockwaveTime > 280) {
           shockwaves.push({
             radius: currentRad,
-            maxRadius: currentRad * (1.8 + Math.random() * 0.8),
+            maxRadius: currentRad * (1.38 + Math.random() * 0.25),
             alpha: 0.75,
             speed: 1.2 + level * 2.0,
           });
@@ -426,14 +426,14 @@ export default function Waveform({
         }
 
         // Resplandor ambiental de fondo (Nebulosa del orbe)
-        const haloGrad = ctx.createRadialGradient(cx, cy, 4, cx, cy, currentRad * 2.2);
+        const haloGrad = ctx.createRadialGradient(cx, cy, 4, cx, cy, currentRad * 1.65);
         haloGrad.addColorStop(0, `rgba(45, 212, 191, ${0.2 + level * 0.35})`);
         haloGrad.addColorStop(0.45, `rgba(168, 85, 247, ${0.12 + level * 0.22})`);
         haloGrad.addColorStop(1, "transparent");
         ctx.save();
         ctx.fillStyle = haloGrad;
         ctx.beginPath();
-        ctx.arc(cx, cy, currentRad * 2.2, 0, Math.PI * 2);
+        ctx.arc(cx, cy, currentRad * 1.65, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 

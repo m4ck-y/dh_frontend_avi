@@ -1,0 +1,6 @@
+{
+  "summary":  "Plan revisado: Ampliación vertical del visualizador acústico a 140px con desvanecimiento suave en los cuatro bordes para evitar cortes en el orbe. El botón del micrófono se mantiene en su posición inferior habitual (debajo del visualizador) con superposición de capas z-index para que las ondas expansivas inferiores fluyan libremente detrás del botón sin cortes abruptos.",
+  "updatedAt":  "2026-10-30T12:11:42.734552691Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}
