@@ -24,12 +24,12 @@ AVI redefine la interacción entre el usuario y un agente de IA de salud:
 3. **Menú Orbital Flotante (Floating Radial Menu):**
    * Sustituye al antiguo rail lateral por un único botón orbital (**FAB**) en la esquina superior.
    * Al tocarlo, despliega en abanico circular satélites de cristal con iconos luminosos y etiquetas flotantes:
-     1. 💬 **Escenario Protagonista** (retorno al modo principal)
-     2. 🗨️ **Conversación / Chat** (apertura de la sábana de mensajes)
-     3. 🎭 **Catálogo de Expresiones** (explorador interactivo anime)
-     4. 📜 **Historial de Sesiones** (sesiones anteriores de salud)
-     5. ℹ️ **Contexto & Superficies** (niveles de seguridad y datos PHR)
-     6. ⚙️ **Ajustes & Simulación (`test_settings`)** (cambio de rol, pantalla completa inmersiva, triggers de avatar)
+     1. [Radio] **Escenario Protagonista** (retorno al modo principal)
+     2. [MessageSquare] **Conversación / Chat** (apertura de la sábana de mensajes)
+     3. [Smile] **Catálogo de Expresiones** (explorador interactivo anime)
+     4. [History] **Historial de Sesiones** (sesiones anteriores de salud)
+     5. [Info] **Contexto & Superficies** (niveles de seguridad y datos PHR)
+     6. [Settings] **Ajustes & Simulación (`test_settings`)** (cambio de rol, pantalla completa inmersiva, triggers de avatar)
 
 ---
 
@@ -53,10 +53,10 @@ flowchart TD
 
     subgraph RadialOrb ["Menú Orbital Flotante (FAB)"]
         OrbTrigger["Orb Trigger"]
-        OrbExpressions["🎭 Expresiones"]
-        OrbHistory["📜 Historial"]
-        OrbInfo["ℹ️ Info"]
-        OrbSettings["⚙️ Test Settings"]
+        OrbExpressions["[Smile] Expresiones"]
+        OrbHistory["[History] Historial"]
+        OrbInfo["[Info] Info"]
+        OrbSettings["[Settings] Test Settings"]
     end
 
     Escenario <-->|"Swipe Up / Touch / Scroll / Send"| ChatSheet
@@ -99,3 +99,44 @@ stateDiagram-v2
 
 Los destinos secundarios (`expressions`, `history`, `info`, `settings`) se presentan como hojas flotantes con desenfoque de cristal sobre el escenario, sin reiniciar el estado de la conversación ni desmotar el avatar:
 * Al cerrar con `✕` o tocar el fondo, el usuario regresa inmediatamente al punto exacto donde estaba con AVI.
+
+---
+
+## 5. Atajos de Teclado y Control Rápido (PC)
+
+Para usuarios de escritorio y power users, AVI ofrece control por teclado sin fricción:
+
+| Atajo | Acción | Contexto |
+|---|---|---|
+| `Espacio` o `M` | Alternar dictado / micrófono | Fuera de campos de texto |
+| `/` | Abrir conversación y enfocar campo de entrada | Global |
+| `T` | Alternar tema (Oscuro Obsidiana ↔ Claro Pastel) | Global |
+| `Esc` | Cerrar hoja de chat o paneles modales | Global |
+
+---
+
+## 6. Flujo Adaptativo: Desktop Split View vs. Mobile Sheet
+
+AVI adapta su arquitectura espacial según el tamaño de la pantalla:
+
+1. **Pantallas Móviles (`< 900px`):**
+   * **Modo Escenario:** AVI ocupa el centro de la pantalla con pedestal holográfico y barra de telemetría.
+   * **Modo Conversación:** Deslizar hacia arriba despliega la sábana de chat a pantalla completa con cabecera de avatar miniatura activa (`Companion Header`) que mantiene la mirada y el estado sincronizados.
+2. **Pantallas de Escritorio y Tablets (`≥ 900px`):**
+   * **Modo Split Screen Inteligente:** Al pulsar el botón de conversación o presionar `/`, el chat no oculta el avatar. Se despliega como un dock lateral de cristal a la derecha ($480\text{ px}$), mientras AVI y su pedestal holográfico permanecen visibles, activos e interactivos a la izquierda.
+
+---
+
+## 7. Flujo Sensorial: Micro-SFX y Respuesta Háptica
+
+1. **Síntesis Web Audio API (Sin latencia de red):**
+   * `poke`: Chirp ascendente-descendente anime al acariciar o pulsar el rostro.
+   * `micOn` / `micOff`: Sweeps armónicos que confirman el inicio y detención de la escucha.
+   * `reply`: Tríada armónica celestial en $F\# - A\# - C\#$ cuando AVI completa su respuesta.
+   * `emotion`: Campanilla cristalina de dos tonos al seleccionar una emoción rápida.
+   * `toggle`: Micro-click seco al alternar tema o controles.
+2. **Control de Privacidad Sonora:**
+   * Botón de silencio discreto (`Volume2` / `VolumeX`) en la barra ambiental para trabajar en entornos silenciosos.
+3. **Háptica Móvil:**
+   * Micro-pulsos de vibración (`navigator.vibrate`) en dispositivos táctiles compatibles para dar tactilidad física a los botones y caricias.
+

@@ -3,9 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
+  Activity,
+  Brain,
   ChevronDown,
   ChevronUp,
   Compass,
+  Cpu,
   Flame,
   History as HistoryIcon,
   Info,
@@ -19,11 +22,16 @@ import {
   Send,
   Settings,
   Smile,
+  Sparkles,
   Sun,
+  Volume2,
+  VolumeX,
   X,
+  Zap,
 } from "lucide-react";
 import type { Message, Role, View } from "@/domain/types";
 import { aviService } from "@/infrastructure";
+import { isSoundEnabled, playSfx, setSoundEnabled, triggerHaptic } from "@/shared/sound";
 import { CONTEXT_TIERS, HISTORY, ROLE_KEYS, ROLES, SUGGESTIONS } from "@/shared/mock/avi";
 import Face, { EXPRESSIONS, type Expression, type Mood } from "./Face";
 import Waveform, { type WaveStyle } from "./Waveform";
@@ -34,23 +42,31 @@ const STATUS: Record<Mood, string> = {
   listening: "Escuchando…",
   thinking: "Pensando…",
   speaking: "Hablando…",
-  sleeping: "Durmiendo… 💤 (mueve el mouse)",
+  sleeping: "Durmiendo… (mueve el cursor)",
 };
 
 const EMOTION_LABEL: Record<Expression, string> = {
   ...STATUS,
   joy: "Alegría",
   anger: "Enojo",
-  annoyed: "Molesta 💢",
+  annoyed: "Molesta",
   sad: "Tristeza",
   surprise: "Sorpresa",
 };
 
 const ANNOYED_LINES = [
-  "¡Oye, no me piques tanto! >_<",
-  "¡Eso hace cosquillas, ya basta! 💢",
-  "¡Ouch! ¿Por qué tantos clics? (｀ε´)",
-  "¡Déjame en paz un ratito! 😤",
+  "¡Oye, no me piques tanto!",
+  "¡Eso hace cosquillas, ya basta!",
+  "¡Ouch! ¿Por qué tantos clics?",
+  "¡Déjame en paz un ratito!",
+];
+
+const QUICK_EMOTIONS: { key: Expression; label: string; icon: React.ReactNode }[] = [
+  { key: "joy", label: "Alegría", icon: <Sparkles size={12} strokeWidth={2.2} /> },
+  { key: "thinking", label: "Pensar", icon: <Brain size={12} strokeWidth={2.2} /> },
+  { key: "surprise", label: "Sorpresa", icon: <Zap size={12} strokeWidth={2.2} /> },
+  { key: "annoyed", label: "Molesta", icon: <Flame size={12} strokeWidth={2.2} /> },
+  { key: "idle", label: "Calma", icon: <Smile size={12} strokeWidth={2.2} /> },
 ];
 
 let nextId = 0;
@@ -69,21 +85,30 @@ export default function AviApp() {
   // Estados de interacción fluida
   const [chatExpanded, setChatExpanded] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-
-  const [waveStyle, setWaveStyle] = useState<WaveStyle>("fluid");
-
-  // Preferencias guardadas: se leen después de hidratar (evita el mismatch de SSR)
-  useEffect(() => {
-    try {
-      const savedTheme = localStorage.getItem("avi_theme");
-      if (savedTheme === "light" || savedTheme === "dark") setTheme(savedTheme);
-      const savedWave = localStorage.getItem("avi_wave_style");
-      if (savedWave === "fluid" || savedWave === "bars" || savedWave === "orbital") setWaveStyle(savedWave);
-    } catch {
-      // ignore
+  const [soundOn, setSoundOn] = useState<boolean>(() => isSoundEnabled());
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("avi_theme");
+        if (saved === "light" || saved === "dark") return saved;
+      } catch {
+        // ignore
+      }
     }
-  }, []);
+    return "dark";
+  });
+
+  const [waveStyle, setWaveStyle] = useState<WaveStyle>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("avi_wave_style");
+        if (saved === "fluid" || saved === "bars" || saved === "orbital") return saved;
+      } catch {
+        // ignore
+      }
+    }
+    return "fluid";
+  });
 
   const handleWaveStyleChange = (style: WaveStyle) => {
     setWaveStyle(style);
@@ -119,6 +144,21 @@ export default function AviApp() {
           : "idle";
   const hasConversation = messages.length > 0;
   const expression: Expression = manualExpression ?? mood;
+
+  // Telemetría vital biológica estimada
+  const vitalBpm = isSleeping
+    ? 54
+    : expression === "surprise" || expression === "anger" || expression === "annoyed"
+      ? 118
+      : expression === "joy"
+        ? 104
+        : listening
+          ? 94
+          : speaking
+            ? 88
+            : pending
+              ? 82
+              : 72;
 
   useEffect(() => {
     hasConversationRef.current = hasConversation;
@@ -188,6 +228,7 @@ export default function AviApp() {
   function toggleTheme() {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
+    playSfx("toggle");
     try {
       localStorage.setItem("avi_theme", next);
     } catch {
@@ -195,9 +236,53 @@ export default function AviApp() {
     }
   }
 
+  function toggleSound() {
+    const next = !soundOn;
+    setSoundOn(next);
+    setSoundEnabled(next);
+    if (next) playSfx("chime");
+  }
+
+  // Atajos de teclado en PC (Espacio/M para mic, / para chat, T para tema, Esc para cerrar)
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      const activeTag = (document.activeElement?.tagName || "").toLowerCase();
+      const isInput = activeTag === "input" || activeTag === "textarea";
+
+      if (e.key === "Escape") {
+        if (view !== "chat") {
+          setView("chat");
+        } else if (chatExpanded) {
+          setChatExpanded(false);
+        }
+        return;
+      }
+
+      if (isInput) return;
+
+      if (e.key === " " || e.key.toLowerCase() === "m") {
+        e.preventDefault();
+        toggleMic();
+      } else if (e.key === "/") {
+        e.preventDefault();
+        setChatExpanded(true);
+        window.setTimeout(() => {
+          document.querySelector<HTMLInputElement>("." + styles.input)?.focus();
+        }, 120);
+      } else if (e.key.toLowerCase() === "t") {
+        toggleTheme();
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [view, chatExpanded, listening, theme]);
+
   // Interacción al tocar / hacer clics repetidos en AVI
   function handleFaceClick() {
     setIsSleeping(false);
+    playSfx("poke");
+    triggerHaptic(18);
     const now = Date.now();
     const isRapid = now - lastPokeTime.current < 2200;
     lastPokeTime.current = now;
@@ -208,7 +293,7 @@ export default function AviApp() {
     if (pokeTimer.current) window.clearTimeout(pokeTimer.current);
 
     if (nextCount === 1) {
-      setPokeMessage("✨ ¡Hola!");
+      setPokeMessage("¡Hola!");
       pokeTimer.current = window.setTimeout(() => {
         setPokeMessage(null);
         setPokeCount(0);
@@ -247,6 +332,7 @@ export default function AviApp() {
       setPending(false);
       pushMessage(reply, "avi");
       setSpeaking(true);
+      playSfx("reply");
       window.setTimeout(() => setSpeaking(false), 1800);
     });
   }
@@ -263,9 +349,12 @@ export default function AviApp() {
     setManualExpression(null);
     if (listening) {
       setListening(false);
+      playSfx("micOff");
       send("» dictado de ejemplo (mock)");
       return;
     }
+    playSfx("micOn");
+    triggerHaptic(25);
     setListening(true);
   }
 
@@ -317,19 +406,33 @@ export default function AviApp() {
           </button>
         </div>
 
-        {/* Controles de la esquina superior derecha: Selector de tema Glass & FAB */}
+        {/* Controles de la esquina superior derecha: Selector de sonido, tema Glass & FAB */}
         <div className={styles.ambientControls}>
+          <button
+            type="button"
+            className={styles.themeToggleBtn}
+            onClick={toggleSound}
+            aria-label={soundOn ? "Silenciar efectos sonoros" : "Activar efectos sonoros"}
+            title={soundOn ? "Sonido activado (clic para silenciar)" : "Silenciado (clic para activar)"}
+          >
+            {soundOn ? (
+              <Volume2 size={19} strokeWidth={2.2} />
+            ) : (
+              <VolumeX size={19} strokeWidth={2.2} />
+            )}
+          </button>
+
           <button
             type="button"
             className={styles.themeToggleBtn}
             onClick={toggleTheme}
             aria-label={theme === "dark" ? "Cambiar a modo claro pastel" : "Cambiar a modo oscuro obsidian"}
-            title={theme === "dark" ? "Activar Modo Claro Pastel" : "Activar Modo Oscuro Obsidian"}
+            title={theme === "dark" ? "Activar Modo Claro Pastel (Tecla T)" : "Activar Modo Oscuro Obsidian (Tecla T)"}
           >
             {theme === "dark" ? (
-              <Sun size={20} strokeWidth={2.2} />
+              <Sun size={19} strokeWidth={2.2} />
             ) : (
-              <Moon size={20} strokeWidth={2.2} />
+              <Moon size={19} strokeWidth={2.2} />
             )}
           </button>
 
@@ -494,18 +597,60 @@ export default function AviApp() {
           />
         </div>
 
-        <div className={styles.presenceMeta}>
-          <span className={styles.presenceStatus} data-mood={expression}>
-            {manualExpression ? `${EMOTION_LABEL[expression]} (Previsualización)` : STATUS[mood]}
-          </span>
+        {/* Barra de Telemetría Biológica Cyberpunk */}
+        <div className={styles.telemetryBar}>
+          <div className={styles.vitalItem} title="Frecuencia cardíaca estimada del avatar">
+            <Activity size={12} className={styles.pulseIcon} />
+            <span className={styles.vitalVal}>{vitalBpm}</span>
+            <span className={styles.vitalUnit}>BPM</span>
+          </div>
+
+          <div className={styles.vitalDivider} />
+
+          <div className={styles.vitalItem} title="Sincronización cognitiva y enlace neural">
+            <Cpu size={12} />
+            <span className={styles.vitalVal}>99.6%</span>
+            <span className={styles.vitalUnit}>SYNC</span>
+          </div>
+
+          <div className={styles.vitalDivider} />
+
+          <div className={styles.vitalItem} title="Estado emocional biológico">
+            <span className={styles.vitalDot} data-mood={expression} />
+            <span className={styles.vitalStatus}>{EMOTION_LABEL[expression]}</span>
+          </div>
+        </div>
+
+        {/* Tira de emociones y expresiones instantáneas */}
+        <div className={styles.quickEmotionStrip} role="toolbar" aria-label="Reacciones rápidas de emoción">
+          {QUICK_EMOTIONS.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              className={`${styles.emotionChip} ${expression === item.key ? styles.emotionChipActive : ""}`}
+              onClick={() => {
+                setManualExpression(item.key);
+                playSfx("emotion");
+                triggerHaptic(15);
+              }}
+              title={`Ver expresión de ${item.label}`}
+            >
+              <span className={styles.emotionChipIcon}>{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          ))}
           {manualExpression && (
             <button
               type="button"
-              className={styles.resetMoodBtn}
-              onClick={() => setManualExpression(null)}
-              title="Restablecer al estado en vivo"
+              className={styles.resetEmotionChip}
+              onClick={() => {
+                setManualExpression(null);
+                playSfx("toggle");
+              }}
+              title="Restablecer a estado biológico en vivo"
             >
-              ✕ En vivo
+              <RotateCcw size={10} strokeWidth={2.2} />
+              <span>Auto</span>
             </button>
           )}
         </div>

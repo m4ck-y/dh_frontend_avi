@@ -12,21 +12,26 @@ Diseño cinematográfico inmersivo:
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│ ● AVI  [ Paciente · PHR · Test Settings ⚙️ ]     ( ❖ ) │ ← Orbe flotante (FAB)
+│ ● AVI  [ Paciente · PHR · Test Settings [Settings] ] (🔊)(☀️)(❖)│ ← Audio, Tema, FAB
 │                                                        │
 │                    ╭──────────────╮                    │
 │                    │  ◉        ◉  │   ← Glow radial    │
 │                    │      ⌣       │     ambiental      │
 │                    ╰──────────────╯                    │
-│                       En línea                         │
+│                 ⎧────────────────────⎫                 │ ← Pedestal holográfico
+│                 ⎩ ═══ Halo 3D ═══ ⎭                 │
 │                                                        │
-│                    ▁▂▃▅▇▅▃▂▁▂▃▅▇▅▃▂                    │ ← Onda 48 barras
+│         [ [Activity] 72 BPM  │  [Settings] 99.6% SYNC  │  🟢 En línea ]  │ ← Telemetría biológica
+│                                                        │
+│     [ [Sparkles] Alegría ] [ [Brain] Pensar ] [ [Zap] Sorpresa ] [ [Flame] ]   │ ← Reacciones rápidas
+│                                                        │
+│                    ▁▂▃▅▇▅▃▂▁▂▃▅▇▅▃▂                    │ ← Onda viva HD (3 estilos)
 │                                                        │
 │                      Hola, soy AVI                     │
 │         Toca el micrófono y háblame, o desliza         │
 │               hacia arriba para escribir               │
 │                                                        │
-│                         ( 🎙 )                         │ ← Mic grande 72px
+│                         ( 🎙 )                         │ ← Mic grande 74px
 │                    Toca para hablar                    │
 │                                                        │
 │          [ Registrar mi glucosa ] [ Ver historial ]    │ ← Sugerencias chip
@@ -38,11 +43,16 @@ Diseño cinematográfico inmersivo:
 | Elemento | Tipo | Comportamiento |
 |---|---|---|
 | `AmbientBar` | Cabecera ambiental | Marca mínima + chip de identidad interactivo (abre `settings`). |
+| `SoundToggle` | Control de audio | Alterna micro-sonidos sintetizados (`Volume2` / `VolumeX`). |
+| `ThemeToggle` | Control de tema | Alterna modo oscuro obsidiana y claro pastel (tecla `T`). |
 | `FabTrigger` | Botón radial flotante | Despliega el abanico circular de satélites de navegación. |
-| `StageFace` | Rostro Anime | Sigue el puntero del ratón en tiempo real con perspectiva 3D (tilt); responde a clics repetidos. |
-| `Waveform` | Oscilograma | 48 barras alimentadas por `AnalyserNode` en vivo o simulación por estado. |
+| `StageFace` | Rostro Anime | Sacadas biológicas estocásticas, parpadeo Poisson natural y seguimiento 3D. |
+| `HologramBase`| Pedestal holográfico | Anillo elíptico 3D y haz luminoso pulsante reactivo al estado emocional. |
+| `TelemetryBar`| Telemetría biológica | Monitor con BPM dinámico, sincronización neural y estado biológico. |
+| `QuickEmotions`| Tira de reacciones | Acceso directo a emociones: Alegría, Pensar, Sorpresa, Molesta, Calma. |
+| `Waveform` | Oscilograma | Selector de 3 estilos: Fluido líquido, Barras FFT, Anillos orbitales. |
 | `BigMic` | Botón de voz | Activa captura de voz; se ilumina en cyan con pulso de resplandor. |
-| `GestureBar` | Tirador gestual | `Swipe Up`, `Swipe Left` o clic para empujar la sábana de chat hacia arriba. |
+| `GestureBar` | Tirador gestual | `Swipe Up`, clic o tecla `/` para abrir la conversación. |
 
 ---
 
@@ -88,12 +98,12 @@ Al pulsar el orbe superior derecho `( ❖ )`:
 ┌────────────────────────────────────────────────────────┐
 │ [ Telón con desenfoque de cristal ]              ( ✕ ) │ ← Trigger rotado
 │                                                        │
-│                    [ Escenario Protagonista ] ( 💬 )   │
-│                      [ Conversación / Chat ]  ( 🗨️ )   │
-│                    [ Catálogo Expresiones ]   ( 🎭 )   │ ← Satélites radiales
-│                      [ Historial de Sesiones ]( 📜 )   │   con animación
-│                      [ Contexto & Seguridad ] ( ℹ️ )   │   de resorte
-│                      [ Ajustes & Identidad ]  ( ⚙️ )   │
+│                    [ Escenario Protagonista ] ( [Radio] )   │
+│                      [ Conversación / Chat ]  ( [MessageSquare] )   │
+│                    [ Catálogo Expresiones ]   ( [Smile] )   │ ← Satélites radiales
+│                      [ Historial de Sesiones ]( [History] )   │   con animación
+│                      [ Contexto & Seguridad ] ( [Info] )   │   de resorte
+│                      [ Ajustes & Identidad ]  ( [Settings] )   │
 │                                                        │
 └────────────────────────────────────────────────────────┘
 ```
@@ -111,10 +121,10 @@ Reemplaza los viejos selectores del header por un panel modal de cristal:
    * `Profesional`: historial de pacientes con consentimiento vigente.
    * `Admin`: administración operacional de catálogos y reglas.
 2. **Pruebas de Avatar:**
-   * 💤 *Dormir a AVI* (activa estado durmiendo con Zzz).
-   * ✨ *Despertar a AVI*.
-   * 💢 *Probar reacción de enojo* (dispara puchero y marca anime).
-   * 🗑️ *Reiniciar conversación*.
+   * [Moon] *Dormir a AVI* (activa estado durmiendo con Zzz).
+   * [Sparkles] *Despertar a AVI*.
+   * [Flame] *Probar reacción de enojo* (dispara puchero y marca anime).
+   * [Trash] *Reiniciar conversación*.
 3. **Modo Inmersivo:**
    * Botón para entrar o salir de pantalla completa nativa (`requestFullscreen`).
 
@@ -125,3 +135,45 @@ Reemplaza los viejos selectores del header por un panel modal de cristal:
 * Cuadrícula de tarjetas de cristal con vista en miniatura de cada expresión:
   `idle`, `listening`, `thinking`, `speaking`, `joy`, `surprise`, `anger`, `sad`, `sleeping`, `annoyed`.
 * Tocar una tarjeta aplica la expresión de inmediato al rostro en el escenario principal.
+
+---
+
+## 6. Modo Desktop Split View (`≥ 900px`)
+
+En computadoras y pantallas amplias, la hoja de chat no cubre la pantalla completa, sino que se transforma en una estación de trabajo holográfica dividida:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│ ● AVI  [ Paciente · PHR · Test Settings [Settings] ]            (🔊)(☀️)(❖)    │
+│                                                                        │
+│  [ Columna Izquierda: Escenario ]     [ Columna Derecha: Chat Dock ]   │
+│                                                                        │
+│         ╭──────────────╮              ╭──────────────────────────────╮ │
+│         │  ◉        ◉  │              │ [ ◉ ⌣ ◉ ] AVI · En línea     │ │
+│         │      ⌣       │              ├──────────────────────────────┤ │
+│         ╰──────────────╯              │ AVI: Hola, ¿en qué te ayudo? │ │
+│      ⎧────────────────────⎫           │                              │ │
+│      ⎩ ═══ Halo 3D ═══ ⎭           │ Tú: Revisa mi glucosa de hoy │ │
+│                                       │                              │ │
+│   [[Activity] 72 BPM │ [Settings] 99.6% SYNC]          │ AVI: Tus registros muestran  │ │
+│   [[Sparkles] Alegría][[Brain] Pensar][[Flame]]          │ un promedio de 98 mg/dL.     │ │
+│                                       │                              │ │
+│       ▁▂▃▅▇▅▃▂▁▂▃▅▇▅▃▂                │                              │ │
+│                                       │ ╭──────────────────────────╮ │ │
+│            ( 🎙 )                     │ │(🎙)[ Escribe aquí… ][Env]│ │ │
+│       Toca para hablar                │ ╰──────────────────────────╯ │ │
+│                                       ╰──────────────────────────────╯ │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 7. Tabla de Atajos de Teclado y Control
+
+| Atajo | Función | Feedback Visual / Sonoro |
+|---|---|---|
+| `Espacio` o `M` | Alternar micrófono / dictado | Pulso cyan en BigMic + Sweep ascendente/descendente |
+| `/` | Abrir chat y enfocar campo de texto | Despliegue de Chat Dock + Cursor en input |
+| `T` | Alternar Modo Oscuro Obsidiana / Claro Pastel | Transición de color suave + Micro-click |
+| `Esc` | Cerrar chat o panel modal abierto | Cierre con física elástica de resorte |
+

@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, type ReactNode } from "react";
-import { motion, useMotionValue, useSpring, useTransform, type MotionValue } from "motion/react";
+import React, { useEffect, useState, type ReactNode } from "react";
 import styles from "./Face.module.css";
 
 export type Mood = "idle" | "listening" | "thinking" | "speaking" | "sleeping";
@@ -115,6 +114,7 @@ const PALETTES: Record<Expression, Palette> = {
 
 export interface FaceProps {
   expression: Expression;
+  pointer?: { x: number; y: number };
   pokeCount?: number;
   pokeMessage?: string | null;
   onFaceClick?: (e: React.MouseEvent) => void;
@@ -177,8 +177,8 @@ function AnimeOpenEye({
   gazeY,
 }: {
   expression: Expression;
-  gazeX: MotionValue<number>;
-  gazeY: MotionValue<number>;
+  gazeX: number;
+  gazeY: number;
 }) {
   const isSurprise = expression === "surprise";
   const isNarrow = expression === "anger" || expression === "annoyed" || expression === "thinking";
@@ -200,9 +200,11 @@ function AnimeOpenEye({
       />
 
       {/* Iris con seguimiento fluido del puntero del mouse */}
-      <motion.g
+      <g
         className={styles.irisGroup}
-        style={{ x: gazeX, y: gazeY }}
+        style={{
+          transform: `translate(${gazeX}px, ${gazeY}px)`,
+        }}
       >
         <ellipse
           cx={80}
@@ -268,7 +270,7 @@ function AnimeOpenEye({
             opacity="0.85"
           />
         )}
-      </motion.g>
+      </g>
 
       {/* Pestaña superior con ala externa */}
       <path
@@ -642,8 +644,35 @@ function AnimeZzz() {
   );
 }
 
+/* Gotita de sudor anime para Pensando / Dudando (Anime Sweatdrop) */
+function AnimeSweatdrop() {
+  return (
+    <g className={styles.sweatdropGroup}>
+      <path
+        d="M 196 46 C 192 53, 190 57, 190 61 C 190 66, 194 70, 198 70 C 202 70, 206 66, 206 61 C 206 57, 204 53, 196 46 Z"
+        fill="url(#anime-sweat-grad)"
+        stroke="rgba(125, 211, 252, 0.85)"
+        strokeWidth="1.2"
+        className={styles.sweatdropBody}
+      />
+      <ellipse cx="200" cy="63" rx="1.8" ry="3" fill="#ffffff" opacity="0.85" transform="rotate(-20 200 63)" />
+    </g>
+  );
+}
+
+/* Burbuja nasal de respiración anime al dormir */
+function AnimeSleepBubble() {
+  return (
+    <g className={styles.sleepBubbleGroup}>
+      <circle cx="136" cy="112" r="9" fill="url(#anime-bubble-grad)" stroke="rgba(196, 181, 253, 0.7)" strokeWidth="1.2" />
+      <ellipse cx="133.5" cy="109" rx="2.5" ry="1.5" fill="#ffffff" opacity="0.85" transform="rotate(-25 133.5 109)" />
+    </g>
+  );
+}
+
 export default function Face({
   expression,
+  pointer,
   pokeCount = 0,
   pokeMessage = null,
   onFaceClick,
@@ -653,9 +682,65 @@ export default function Face({
   const isJoy = expression === "joy";
   const isAnnoyed = expression === "annoyed" || expression === "anger" || pokeCount >= 4;
 
-  // Motion values para el seguimiento del puntero (imperativo, sin re-render de React)
-  const pointerX = useMotionValue(0);
-  const pointerY = useMotionValue(0);
+  const [localPointer, setLocalPointer] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [saccade, setSaccade] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isBlinking, setIsBlinking] = useState(false);
+
+  // Motor biológico 1: Sacadas oculares autónomas estocásticas (evita la mirada muerta)
+  useEffect(() => {
+    if (isSleeping) return;
+    let timerId: number;
+    function scheduleSaccade() {
+      const delay = 1900 + Math.random() * 2400;
+      timerId = window.setTimeout(() => {
+        // Desplazamiento sutil de 1 a 2.5px
+        const sx = (Math.random() - 0.5) * 4.4;
+        const sy = (Math.random() - 0.5) * 2.8;
+        setSaccade({ x: sx, y: sy });
+
+        const holdTime = 300 + Math.random() * 320;
+        window.setTimeout(() => {
+          setSaccade({ x: 0, y: 0 });
+          scheduleSaccade();
+        }, holdTime);
+      }, delay);
+    }
+    scheduleSaccade();
+    return () => window.clearTimeout(timerId);
+  }, [isSleeping]);
+
+  // Motor biológico 2: Parpadeo estocástico natural (con probabilidad de doble parpadeo)
+  useEffect(() => {
+    if (isSleeping) return;
+    let blinkTimer: number;
+    function scheduleBlink() {
+      const baseDelay = expression === "thinking" ? 2200 : expression === "joy" ? 2400 : 3600;
+      const delay = Math.max(1400, baseDelay + (Math.random() - 0.5) * 1800);
+
+      blinkTimer = window.setTimeout(() => {
+        setIsBlinking(true);
+
+        window.setTimeout(() => {
+          setIsBlinking(false);
+
+          // 18% probabilidad de doble parpadeo anime
+          if (Math.random() < 0.18) {
+            window.setTimeout(() => {
+              setIsBlinking(true);
+              window.setTimeout(() => {
+                setIsBlinking(false);
+                scheduleBlink();
+              }, 95);
+            }, 120);
+          } else {
+            scheduleBlink();
+          }
+        }, 115);
+      }, delay);
+    }
+    scheduleBlink();
+    return () => window.clearTimeout(blinkTimer);
+  }, [isSleeping, expression]);
 
   useEffect(() => {
     if (!interactive || isSleeping) return;
@@ -665,8 +750,7 @@ export default function Face({
       const py = Math.max(-1, Math.min(1, (clientY - window.innerHeight / 2) / (window.innerHeight / 2)));
       cancelAnimationFrame(animId);
       animId = requestAnimationFrame(() => {
-        pointerX.set(px);
-        pointerY.set(py);
+        setLocalPointer({ x: px, y: py });
       });
     }
 
@@ -691,23 +775,24 @@ export default function Face({
     };
   }, [interactive, isSleeping]);
 
-  // Springs suaves: el ojo persigue al puntero con inercia (sin re-render)
-  const spring = { stiffness: 120, damping: 20, mass: 0.6 };
-  const sx = useSpring(pointerX, spring);
-  const sy = useSpring(pointerY, spring);
+  const activePointer = pointer ?? localPointer;
 
-  const gazeX = useTransform(sx, (v) => (isSleeping ? 0 : expression === "thinking" ? 3.5 : v * 9.5));
-  const gazeY = useTransform(sy, (v) => (isSleeping ? 2 : expression === "thinking" ? -3.5 : v * 6));
-  const gazeXNeg = useTransform(gazeX, (v) => -v);
-  const tiltX = useTransform(sy, (v) => v * -6);
-  const tiltY = useTransform(sx, (v) => v * 8);
+  // Seguimiento suave del puntero + sacadas biológicas
+  const gazeX = isSleeping ? 0 : expression === "thinking" ? 3.5 : activePointer.x * 9.5 + saccade.x;
+  const gazeY = isSleeping ? 2 : expression === "thinking" ? -3.5 : activePointer.y * 6 + saccade.y;
+
+  // Inclinación 3D sutil hacia el mouse
+  const tiltX = (activePointer.y * -6).toFixed(2);
+  const tiltY = (activePointer.x * 8).toFixed(2);
 
   const palette = PALETTES[expression] || PALETTES.idle;
 
   return (
-    <motion.div
+    <div
       className={`${styles.faceWrapper} ${isAnnoyed ? styles.shaking : ""}`}
-      style={{ rotateX: tiltX, rotateY: tiltY, transformPerspective: 700 }}
+      style={{
+        transform: `perspective(700px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`,
+      }}
       onClick={interactive ? onFaceClick : undefined}
       title={interactive ? "¡Toca a AVI para interactuar!" : undefined}
       role={interactive ? "button" : undefined}
@@ -729,6 +814,12 @@ export default function Face({
           <div className={styles.bubbleTail} />
         </div>
       )}
+
+      {/* Halo / Pedestal Holográfico reactivo */}
+      <div className={styles.hologramBase} aria-hidden="true">
+        <div className={styles.hologramBeam} />
+        <div className={styles.hologramRing} />
+      </div>
 
       <svg
         viewBox="0 0 260 180"
@@ -784,6 +875,21 @@ export default function Face({
             <stop offset="0%" stopColor="#ffffff" />
             <stop offset="100%" stopColor="#e2e8f0" />
           </linearGradient>
+
+          {/* Gradiente para gota de sudor anime */}
+          <linearGradient id="anime-sweat-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#bae6fd" stopOpacity="0.4" />
+            <stop offset="60%" stopColor="#38bdf8" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#0284c7" stopOpacity="0.9" />
+          </linearGradient>
+
+          {/* Gradiente para burbuja de respiración anime */}
+          <radialGradient id="anime-bubble-grad" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.75" />
+            <stop offset="50%" stopColor="#c4b5fd" stopOpacity="0.35" />
+            <stop offset="85%" stopColor="#818cf8" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#6366f1" stopOpacity="0.2" />
+          </radialGradient>
         </defs>
 
         {/* Capa de expresión con interpolación fluida entre emociones */}
@@ -794,8 +900,16 @@ export default function Face({
           {/* Marca de enojo anime cuando se molesta o enojo */}
           {isAnnoyed && <AnimeAngerVein />}
 
-          {/* Letras Zzz flotantes al dormir */}
-          {isSleeping && <AnimeZzz />}
+          {/* Gotita de sudor anime al pensar */}
+          {expression === "thinking" && <AnimeSweatdrop />}
+
+          {/* Burbuja de respiración y Zzz al dormir */}
+          {isSleeping && (
+            <>
+              <AnimeSleepBubble />
+              <AnimeZzz />
+            </>
+          )}
 
           {/* Sonrojo Anime */}
           <g
@@ -828,8 +942,8 @@ export default function Face({
             className={styles.nose}
           />
 
-          {/* Ojos Izquierdo y Derecho con transición suave */}
-          {isSleeping ? (
+          {/* Ojos Izquierdo y Derecho con parpadeo estocástico y transiciones */}
+          {isSleeping || isBlinking ? (
             <g className={styles.eyesGroup}>
               <g className={styles.eyeL}>
                 <AnimeSleepingEye />
@@ -864,7 +978,7 @@ export default function Face({
                 <Mirror>
                   <AnimeOpenEye
                     expression={expression}
-                    gazeX={gazeXNeg}
+                    gazeX={-gazeX}
                     gazeY={gazeY}
                   />
                 </Mirror>
@@ -901,6 +1015,6 @@ export default function Face({
           <AnimeMouth expression={expression} />
         </g>
       </svg>
-    </motion.div>
+    </div>
   );
 }

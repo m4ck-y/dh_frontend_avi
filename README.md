@@ -63,5 +63,7 @@ npm run start   # serves the production build
 
 ## Docs
 
-- `docs/FLOW.md` — navigation flow (Mermaid).
-- `docs/SCREENS.md` — screens, fields, ASCII wireframes.
+- `docs/README.md` — icon & design conventions, zero-emoji policy (`lucide-react`).
+- `docs/FLOW.md` — navigation flow (Mermaid), keyboard shortcuts, adaptive desktop/mobile layout.
+- `docs/SCREENS.md` — screens, fields, telemetry, ASCII wireframes.
+- `docs/BIOLOGICAL_BEHAVIOR.md` — biological autonomous behaviors (saccades, blinks, anime decorators).
