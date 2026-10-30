@@ -12,6 +12,7 @@ interface WaveformProps {
   micOn: boolean;
   styleVariant?: WaveStyle;
   onStyleChange?: (style: WaveStyle) => void;
+  showMeta?: boolean;
 }
 
 export default function Waveform({
@@ -19,6 +20,7 @@ export default function Waveform({
   micOn,
   styleVariant = "fluid",
   onStyleChange,
+  showMeta = false,
 }: WaveformProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const levelTextRef = useRef<HTMLSpanElement | null>(null);
@@ -107,8 +109,11 @@ export default function Waveform({
     resize();
     window.addEventListener("resize", resize);
 
-    // Partículas de energía vocal
+    // Partículas y estados reactivos del visualizador
     const particles: { x: number; y: number; vx: number; vy: number; life: number; color: string; size: number }[] = [];
+    const peakCaps = new Array(36).fill(4);
+    const shockwaves: { radius: number; maxRadius: number; alpha: number; speed: number }[] = [];
+    let lastShockwaveTime = 0;
 
     // Bucle de renderizado a 60 FPS
     const render = () => {
@@ -284,79 +289,221 @@ export default function Waveform({
         }
       }
 
-      // ── MODO 2: ESPECTRO HOLOGRÁFICO ANIME (BARRAS DE CRISTAL DINÁMICAS) ───────────
+      // ── MODO 2: ESPECTRO HOLOGRÁFICO ANIME (MIRRORED EQUALIZER + PEAK CAPS) ────────
       else if (currentStyle === "bars") {
         const barCount = 36;
-        const totalGap = (barCount - 1) * 3;
-        const availableW = Math.min(w * 0.85, 380);
-        const barW = Math.max(3, (availableW - totalGap) / barCount);
+        const totalGap = (barCount - 1) * 3.5;
+        const availableW = Math.min(w * 0.9, 440);
+        const barW = Math.max(3.5, (availableW - totalGap) / barCount);
         const startX = (w - (barCount * barW + totalGap)) / 2;
 
+        // Eje central de energía sutil
+        const centerLineGrad = ctx.createLinearGradient(startX, cy, startX + availableW, cy);
+        centerLineGrad.addColorStop(0, "transparent");
+        centerLineGrad.addColorStop(0.2, "rgba(45, 212, 191, 0.4)");
+        centerLineGrad.addColorStop(0.5, "rgba(56, 189, 248, 0.8)");
+        centerLineGrad.addColorStop(0.8, "rgba(192, 132, 252, 0.4)");
+        centerLineGrad.addColorStop(1, "transparent");
+        ctx.save();
+        ctx.strokeStyle = centerLineGrad;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(startX, cy);
+        ctx.lineTo(startX + availableW, cy);
+        ctx.stroke();
+        ctx.restore();
+
         for (let i = 0; i < barCount; i++) {
-          const normI = i / barCount;
-          const envelope = Math.sin(normI * Math.PI); // Campana simétrica
+          const normI = i / (barCount - 1);
+          // Campana envolvente para que el centro tenga mayor rango dinámico y los bordes se desvanezcan
+          const envelope = Math.pow(Math.sin(normI * Math.PI), 1.3);
 
           let barHeight = 4;
           if (micOn && freqData) {
-            // Mapeo espectral directo de frecuencias
-            const binIdx = Math.floor(normI * (Math.min(48, freqData.length) - 1));
-            const val = freqData[binIdx] / 255;
-            barHeight = 4 + val * (cy * 1.5) * envelope;
+            const binIdx = Math.floor(normI * (Math.min(56, freqData.length) - 1));
+            const prev = binIdx > 0 ? freqData[binIdx - 1] : freqData[binIdx];
+            const next = binIdx < freqData.length - 1 ? freqData[binIdx + 1] : freqData[binIdx];
+            const val = ((freqData[binIdx] * 0.6) + (prev * 0.2) + (next * 0.2)) / 255;
+            barHeight = 4 + val * (cy * 1.55) * envelope;
           } else {
-            // Animación armónica procedural simétrica
-            const wave = Math.sin(normI * Math.PI * 3 + phaseRef.current * 1.8) * 0.5 + 0.5;
-            barHeight = 4 + wave * (cy * 1.4) * level * envelope;
+            const wave1 = Math.sin(normI * Math.PI * 3.2 + phaseRef.current * 2.2);
+            const wave2 = Math.cos(normI * Math.PI * 6.4 - phaseRef.current * 1.4);
+            const procedural = (wave1 * 0.65 + wave2 * 0.35) * 0.5 + 0.5;
+            barHeight = 4 + procedural * (cy * 1.45) * level * envelope;
           }
 
-          const bx = startX + i * (barW + 3);
-          const by = cy - barHeight / 2;
+          // Actualizar posición de la cápsula flotante de pico (Peak Cap)
+          if (barHeight > peakCaps[i]) {
+            peakCaps[i] = barHeight;
+          } else {
+            peakCaps[i] = Math.max(barHeight, peakCaps[i] - 0.7);
+          }
 
-          // Gradiente vertical para cada barra
-          const barGrad = ctx.createLinearGradient(bx, by, bx, by + barHeight);
-          barGrad.addColorStop(0, "rgba(56, 189, 248, 0.95)");
-          barGrad.addColorStop(0.5, "rgba(45, 212, 191, 0.85)");
-          barGrad.addColorStop(1, "rgba(168, 85, 247, 0.9)");
+          const bx = startX + i * (barW + 3.5);
+          const halfH = barHeight / 2;
+          const peakH = peakCaps[i] / 2;
 
           ctx.save();
-          ctx.fillStyle = barGrad;
-          ctx.shadowColor = "rgba(45, 212, 191, 0.6)";
-          ctx.shadowBlur = 6 + level * 8;
+          // Desvanecer alpha en laterales según envolvente
+          ctx.globalAlpha = 0.2 + envelope * 0.8;
 
-          // Dibujar cápsula con esquinas redondeadas
-          const radius = barW / 2;
+          // 1. Barra principal superior (hacia arriba)
+          const topGrad = ctx.createLinearGradient(bx, cy, bx, cy - halfH);
+          topGrad.addColorStop(0, "rgba(45, 212, 191, 0.95)");
+          topGrad.addColorStop(0.55, "rgba(56, 189, 248, 0.9)");
+          topGrad.addColorStop(1, "rgba(192, 132, 252, 0.95)");
+
+          ctx.fillStyle = topGrad;
+          ctx.shadowColor = "rgba(45, 212, 191, 0.7)";
+          ctx.shadowBlur = 8 + level * 10;
           ctx.beginPath();
-          ctx.roundRect(bx, by, barW, Math.max(barHeight, 4), radius);
+          ctx.roundRect(bx, cy - halfH, barW, halfH, [barW / 2, barW / 2, 0, 0]);
           ctx.fill();
+
+          // 2. Reflejo especular inferior (hacia abajo, más suave y estilizado)
+          const botGrad = ctx.createLinearGradient(bx, cy, bx, cy + halfH * 0.65);
+          botGrad.addColorStop(0, "rgba(45, 212, 191, 0.6)");
+          botGrad.addColorStop(1, "rgba(168, 85, 247, 0.05)");
+
+          ctx.fillStyle = botGrad;
+          ctx.shadowBlur = 0;
+          ctx.beginPath();
+          ctx.roundRect(bx, cy, barW, halfH * 0.65, [0, 0, barW / 2, barW / 2]);
+          ctx.fill();
+
+          // 3. Cápsula flotante de pico superior (HUD Cyberpunk Peak Meter)
+          if (peakH > 4) {
+            ctx.fillStyle = "#ffffff";
+            ctx.shadowColor = "#5eead4";
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.roundRect(bx, cy - peakH - 3, barW, 2.2, 1.1);
+            ctx.fill();
+          }
+
           ctx.restore();
         }
       }
 
-      // ── MODO 3: ORBE / PULSO RESONANTE (ESTILO CHATGPT / SIRI AURA) ──────────────
+      // ── MODO 3: ORBE RESONANTE (NÚCLEO SÓNICO LÍQUIDO CON ONDAS EXPANSIVAS) ──────
       else if (currentStyle === "orbital") {
-        const baseRadius = Math.min(w, h) * 0.28;
-        const pulse = baseRadius + level * 26 + Math.sin(phaseRef.current * 2) * 4;
+        const cx = w / 2;
+        const baseRad = Math.min(w, h) * 0.22;
+        const currentRad = baseRad + level * 16;
 
-        // Anillos concéntricos difusos
-        for (let r = 2; r >= 0; r--) {
-          const ringRad = pulse + r * 10;
+        // Spawn de ondas de choque acústicas expansivas
+        const now = Date.now();
+        if ((level > 0.32 || Math.random() < 0.04) && now - lastShockwaveTime > 280) {
+          shockwaves.push({
+            radius: currentRad,
+            maxRadius: currentRad * (1.8 + Math.random() * 0.8),
+            alpha: 0.75,
+            speed: 1.2 + level * 2.0,
+          });
+          lastShockwaveTime = now;
+        }
+
+        // Renderizar y actualizar ondas expansivas de choque
+        for (let s = shockwaves.length - 1; s >= 0; s--) {
+          const sw = shockwaves[s];
+          sw.radius += sw.speed;
+          sw.alpha *= 0.94;
+
+          if (sw.alpha <= 0.02 || sw.radius >= sw.maxRadius) {
+            shockwaves.splice(s, 1);
+            continue;
+          }
+
           ctx.save();
           ctx.beginPath();
-          ctx.arc(w / 2, cy, ringRad, 0, Math.PI * 2);
-          ctx.strokeStyle = r === 0 ? "rgba(45, 212, 191, 0.85)" : r === 1 ? "rgba(56, 189, 248, 0.5)" : "rgba(192, 132, 252, 0.3)";
-          ctx.lineWidth = 2.2 - r * 0.5;
+          ctx.arc(cx, cy, sw.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(45, 212, 191, ${sw.alpha * 0.7})`;
+          ctx.lineWidth = 1.6;
           ctx.shadowColor = "rgba(45, 212, 191, 0.8)";
-          ctx.shadowBlur = 12 + level * 14;
+          ctx.shadowBlur = 12;
           ctx.stroke();
           ctx.restore();
         }
 
-        // Punto central de energía
+        // Resplandor ambiental de fondo (Nebulosa del orbe)
+        const haloGrad = ctx.createRadialGradient(cx, cy, 4, cx, cy, currentRad * 2.2);
+        haloGrad.addColorStop(0, `rgba(45, 212, 191, ${0.2 + level * 0.35})`);
+        haloGrad.addColorStop(0.45, `rgba(168, 85, 247, ${0.12 + level * 0.22})`);
+        haloGrad.addColorStop(1, "transparent");
+        ctx.save();
+        ctx.fillStyle = haloGrad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, currentRad * 2.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Núcleo líquido deformable orgánicamente (Forma armónica continua)
+        const totalVertices = 48;
         ctx.save();
         ctx.beginPath();
-        ctx.arc(w / 2, cy, 4 + level * 8, 0, Math.PI * 2);
-        ctx.fillStyle = "#ffffff";
+        for (let v = 0; v <= totalVertices; v++) {
+          const angle = (v / totalVertices) * Math.PI * 2;
+          const deform1 = Math.sin(angle * 3 + phaseRef.current * 2.2) * (5 * level);
+          const deform2 = Math.cos(angle * 5 - phaseRef.current * 1.6) * (4 * level);
+          const deform3 = Math.sin(angle * 2 + phaseRef.current * 0.9) * (3 * level);
+          const r = currentRad + deform1 + deform2 + deform3;
+
+          const px = cx + Math.cos(angle) * r;
+          const py = cy + Math.sin(angle) * r;
+
+          if (v === 0) {
+            ctx.moveTo(px, py);
+          } else {
+            ctx.lineTo(px, py);
+          }
+        }
+        ctx.closePath();
+
+        const coreGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, currentRad);
+        coreGrad.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+        coreGrad.addColorStop(0.35, "rgba(94, 234, 212, 0.85)");
+        coreGrad.addColorStop(0.75, "rgba(56, 189, 248, 0.7)");
+        coreGrad.addColorStop(1, "rgba(192, 132, 252, 0.4)");
+
+        ctx.fillStyle = coreGrad;
         ctx.shadowColor = "#2dd4bf";
+        ctx.shadowBlur = 18 + level * 16;
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.restore();
+
+        // Filamento orbital resonante que gira en 3D
+        ctx.save();
+        ctx.beginPath();
+        const filamentRad = currentRad * 1.28;
+        for (let v = 0; v <= totalVertices; v++) {
+          const angle = (v / totalVertices) * Math.PI * 2;
+          const deform = Math.sin(angle * 4 + phaseRef.current * 3.0) * (6 * level);
+          const r = filamentRad + deform;
+          const px = cx + Math.cos(angle + phaseRef.current * 0.5) * r;
+          const py = cy + Math.sin(angle + phaseRef.current * 0.5) * (r * 0.55);
+
+          if (v === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = "rgba(56, 189, 248, 0.85)";
+        ctx.lineWidth = 2.0;
+        ctx.shadowColor = "rgba(56, 189, 248, 0.9)";
         ctx.shadowBlur = 14;
+        ctx.stroke();
+        ctx.restore();
+
+        // Singularidad central brillante
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3 + level * 5, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "#ffffff";
+        ctx.shadowBlur = 16;
         ctx.fill();
         ctx.restore();
       }
@@ -382,53 +529,55 @@ export default function Waveform({
         <canvas ref={canvasRef} className={styles.canvas} />
       </div>
 
-      {/* Barra de metadatos y selector de estilo */}
-      <div className={styles.metaRow}>
-        <div className={styles.statusBadge} data-state={effectiveMicState}>
-          <span className={styles.statusDot} />
-          {effectiveMicState === "live" ? (
-            <span ref={levelTextRef}>Voz activa</span>
-          ) : effectiveMicState === "denied" ? (
-            <span>Micrófono sin permiso (simulación)</span>
-          ) : (
-            <span>Frecuencia base ({mood})</span>
-          )}
-        </div>
+      {/* Barra de metadatos y selector de estilo (opcional) */}
+      {showMeta && (
+        <div className={styles.metaRow}>
+          <div className={styles.statusBadge} data-state={effectiveMicState}>
+            <span className={styles.statusDot} />
+            {effectiveMicState === "live" ? (
+              <span ref={levelTextRef}>Voz activa</span>
+            ) : effectiveMicState === "denied" ? (
+              <span>Micrófono sin permiso (simulación)</span>
+            ) : (
+              <span>Frecuencia base ({mood})</span>
+            )}
+          </div>
 
-        {/* Selector sutil de estilos interactivo */}
-        <div className={styles.styleSelector} role="radiogroup" aria-label="Estilo de visualización">
-          <button
-            type="button"
-            className={`${styles.styleBtn} ${currentStyle === "fluid" ? styles.styleBtnActive : ""}`}
-            onClick={() => switchStyle("fluid")}
-            title="Onda Fluida Aurora (Líquida continua con resplandor)"
-            aria-checked={currentStyle === "fluid"}
-            role="radio"
-          >
-            Aurora
-          </button>
-          <button
-            type="button"
-            className={`${styles.styleBtn} ${currentStyle === "bars" ? styles.styleBtnActive : ""}`}
-            onClick={() => switchStyle("bars")}
-            title="Espectro Holográfico (Barras de cristal anime)"
-            aria-checked={currentStyle === "bars"}
-            role="radio"
-          >
-            Espectro
-          </button>
-          <button
-            type="button"
-            className={`${styles.styleBtn} ${currentStyle === "orbital" ? styles.styleBtnActive : ""}`}
-            onClick={() => switchStyle("orbital")}
-            title="Orbe Resonante (Pulso acústico concéntrico)"
-            aria-checked={currentStyle === "orbital"}
-            role="radio"
-          >
-            Orbe
-          </button>
+          {/* Selector sutil de estilos interactivo */}
+          <div className={styles.styleSelector} role="radiogroup" aria-label="Estilo de visualización">
+            <button
+              type="button"
+              className={`${styles.styleBtn} ${currentStyle === "fluid" ? styles.styleBtnActive : ""}`}
+              onClick={() => switchStyle("fluid")}
+              title="Onda Fluida Aurora (Líquida continua con resplandor)"
+              aria-checked={currentStyle === "fluid"}
+              role="radio"
+            >
+              Aurora
+            </button>
+            <button
+              type="button"
+              className={`${styles.styleBtn} ${currentStyle === "bars" ? styles.styleBtnActive : ""}`}
+              onClick={() => switchStyle("bars")}
+              title="Espectro Holográfico (Barras de cristal anime)"
+              aria-checked={currentStyle === "bars"}
+              role="radio"
+            >
+              Espectro
+            </button>
+            <button
+              type="button"
+              className={`${styles.styleBtn} ${currentStyle === "orbital" ? styles.styleBtnActive : ""}`}
+              onClick={() => switchStyle("orbital")}
+              title="Orbe Resonante (Pulso acústico concéntrico)"
+              aria-checked={currentStyle === "orbital"}
+              role="radio"
+            >
+              Orbe
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

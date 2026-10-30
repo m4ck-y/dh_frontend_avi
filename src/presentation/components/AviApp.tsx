@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   Activity,
-  Brain,
   ChevronDown,
   ChevronUp,
   Compass,
@@ -22,12 +21,10 @@ import {
   Send,
   Settings,
   Smile,
-  Sparkles,
   Sun,
   Volume2,
   VolumeX,
   X,
-  Zap,
 } from "lucide-react";
 import type { Message, Role, View } from "@/domain/types";
 import { aviService } from "@/infrastructure";
@@ -61,13 +58,6 @@ const ANNOYED_LINES = [
   "¡Déjame en paz un ratito!",
 ];
 
-const QUICK_EMOTIONS: { key: Expression; label: string; icon: React.ReactNode }[] = [
-  { key: "joy", label: "Alegría", icon: <Sparkles size={12} strokeWidth={2.2} /> },
-  { key: "thinking", label: "Pensar", icon: <Brain size={12} strokeWidth={2.2} /> },
-  { key: "surprise", label: "Sorpresa", icon: <Zap size={12} strokeWidth={2.2} /> },
-  { key: "annoyed", label: "Molesta", icon: <Flame size={12} strokeWidth={2.2} /> },
-  { key: "idle", label: "Calma", icon: <Smile size={12} strokeWidth={2.2} /> },
-];
 
 let nextId = 0;
 
@@ -320,13 +310,15 @@ export default function AviApp() {
     setMessages((prev) => [...prev, { id: nextId++, author, text }]);
   }
 
-  function send(text: string) {
+  function send(text: string, expandChat: boolean = false) {
     const trimmed = text.trim();
     if (!trimmed) return;
     setManualExpression(null);
     pushMessage(trimmed, "user");
     setInput("");
-    setChatExpanded(true);
+    if (expandChat) {
+      setChatExpanded(true);
+    }
     setPending(true);
     void aviService.reply(role, trimmed).then((reply) => {
       setPending(false);
@@ -350,7 +342,7 @@ export default function AviApp() {
     if (listening) {
       setListening(false);
       playSfx("micOff");
-      send("» dictado de ejemplo (mock)");
+      send("» dictado de ejemplo (mock)", false);
       return;
     }
     playSfx("micOn");
@@ -404,6 +396,20 @@ export default function AviApp() {
           >
             {ROLES[role].label} · Test Settings
           </button>
+        </div>
+
+        {/* Telemetría periférica sutil en la barra ambiental */}
+        <div className={styles.telemetryPill} title="Telemetría vital y biológica de AVI">
+          <Activity size={12} className={styles.pulseIcon} />
+          <span className={styles.vitalVal}>{vitalBpm}</span>
+          <span className={styles.vitalUnit}>BPM</span>
+          <span className={styles.telemetryDot} />
+          <Cpu size={12} />
+          <span className={styles.vitalVal}>99.6%</span>
+          <span className={styles.vitalUnit}>SYNC</span>
+          <span className={styles.telemetryDot} />
+          <span className={styles.vitalDot} data-mood={expression} />
+          <span className={styles.vitalStatus}>{EMOTION_LABEL[expression]}</span>
         </div>
 
         {/* Controles de la esquina superior derecha: Selector de sonido, tema Glass & FAB */}
@@ -580,7 +586,7 @@ export default function AviApp() {
       </div>
     </div>
 
-      {/* Escenario Protagonista (Full Face & Voice Stage) */}
+      {/* Escenario Protagonista (Full Face & Voice Stage Purificado) */}
       <main
         className={styles.stage}
         onTouchStart={handleTouchStart}
@@ -597,83 +603,12 @@ export default function AviApp() {
           />
         </div>
 
-        {/* Barra de Telemetría Biológica Cyberpunk */}
-        <div className={styles.telemetryBar}>
-          <div className={styles.vitalItem} title="Frecuencia cardíaca estimada del avatar">
-            <Activity size={12} className={styles.pulseIcon} />
-            <span className={styles.vitalVal}>{vitalBpm}</span>
-            <span className={styles.vitalUnit}>BPM</span>
-          </div>
-
-          <div className={styles.vitalDivider} />
-
-          <div className={styles.vitalItem} title="Sincronización cognitiva y enlace neural">
-            <Cpu size={12} />
-            <span className={styles.vitalVal}>99.6%</span>
-            <span className={styles.vitalUnit}>SYNC</span>
-          </div>
-
-          <div className={styles.vitalDivider} />
-
-          <div className={styles.vitalItem} title="Estado emocional biológico">
-            <span className={styles.vitalDot} data-mood={expression} />
-            <span className={styles.vitalStatus}>{EMOTION_LABEL[expression]}</span>
-          </div>
-        </div>
-
-        {/* Tira de emociones y expresiones instantáneas */}
-        <div className={styles.quickEmotionStrip} role="toolbar" aria-label="Reacciones rápidas de emoción">
-          {QUICK_EMOTIONS.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              className={`${styles.emotionChip} ${expression === item.key ? styles.emotionChipActive : ""}`}
-              onClick={() => {
-                setManualExpression(item.key);
-                playSfx("emotion");
-                triggerHaptic(15);
-              }}
-              title={`Ver expresión de ${item.label}`}
-            >
-              <span className={styles.emotionChipIcon}>{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          ))}
-          {manualExpression && (
-            <button
-              type="button"
-              className={styles.resetEmotionChip}
-              onClick={() => {
-                setManualExpression(null);
-                playSfx("toggle");
-              }}
-              title="Restablecer a estado biológico en vivo"
-            >
-              <RotateCcw size={10} strokeWidth={2.2} />
-              <span>Auto</span>
-            </button>
-          )}
-        </div>
-
         <Waveform
           mood={mood}
           micOn={listening}
           styleVariant={waveStyle}
-          onStyleChange={handleWaveStyleChange}
+          showMeta={false}
         />
-
-        {!hasConversation ? (
-          <>
-            <h1 className={styles.heroTitle}>Hola, soy AVI</h1>
-            <p className={styles.heroHint}>
-              Toca el micrófono y háblame, o desliza hacia arriba para escribir. {ROLES[role].context}
-            </p>
-          </>
-        ) : (
-          <p className={styles.heroHint}>
-            Conversación activa ({messages.length} mensajes). Desliza hacia arriba para leerla.
-          </p>
-        )}
 
         {/* Botón de voz protagonista */}
         <div className={styles.voiceActionGroup}>
@@ -686,26 +621,9 @@ export default function AviApp() {
           >
             <Mic size={32} strokeWidth={2.2} />
           </button>
-          <span className={styles.actionsHint}>
-            {listening ? "Escuchando — toca para terminar" : "Toca para hablar"}
-          </span>
         </div>
 
-        {/* Sugerencias contextuales de la identidad activa */}
-        <div className={styles.stageSuggestions}>
-          {SUGGESTIONS[role].slice(0, 2).map((s) => (
-            <button
-              key={s}
-              type="button"
-              className={styles.chip}
-              onClick={() => send(s)}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-
-        {/* Barra gestual inferior: Deslizar hacia arriba para abrir conversación */}
+        {/* Barra gestual inferior: Deslizar hacia arriba o pulsar para abrir conversación */}
         <button
           type="button"
           className={styles.gestureBar}
@@ -789,7 +707,7 @@ export default function AviApp() {
                   key={s}
                   type="button"
                   className={styles.chip}
-                  onClick={() => send(s)}
+                  onClick={() => send(s, true)}
                 >
                   {s}
                 </button>
@@ -813,11 +731,11 @@ export default function AviApp() {
                 placeholder="Escribe una instrucción para AVI…"
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") send(input);
+                  if (e.key === "Enter") send(input, true);
                 }}
               />
 
-              <button type="button" className={styles.send} onClick={() => send(input)}>
+              <button type="button" className={styles.send} onClick={() => send(input, true)}>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                   <Send size={14} strokeWidth={2.2} /> Enviar
                 </span>

@@ -8,35 +8,27 @@ Diseño cinematográfico inmersivo:
 
 ---
 
-## 1. Escenario Protagonista (`Stage Mode`)
+## 1. Escenario Protagonista Purificado (`Stage Mode — Pure Focus`)
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│ ● AVI  [ Paciente · PHR · Test Settings [Settings] ] (🔊)(☀️)(❖)│ ← Audio, Tema, FAB
+│ ● AVI  [ Paciente · PHR ]                (🔊) (☀️) (❖)│ ← AmbientBar: Marca + Ajustes + FAB
+│   └─ [72 BPM · 99.6% SYNC · En línea]                   │ ← Telemetría periférica lateral
+│                                                        │
 │                                                        │
 │                    ╭──────────────╮                    │
-│                    │  ◉        ◉  │   ← Glow radial    │
-│                    │      ⌣       │     ambiental      │
-│                    ╰──────────────╯                    │
-│                 ⎧────────────────────⎫                 │ ← Pedestal holográfico
-│                 ⎩ ═══ Halo 3D ═══ ⎭                 │
+│                    │  ◉        ◉  │   ← Centro puro:   │
+│                    │      ⌣       │     Rostro Anime   │
+│                    ╰──────────────╯     con física 3D  │
+│                 ⎧────────────────────⎫                 │
+│                 ⎩ ═══ Halo 3D ═══ ⎭                 │ ← Halo holográfico
 │                                                        │
-│         [ [Activity] 72 BPM  │  [Settings] 99.6% SYNC  │  🟢 En línea ]  │ ← Telemetría biológica
+│                    ▁▂▃▅▇▅▃▂▁▂▃▅▇▅▃▂                    │ ← Visualizador acústico HD
 │                                                        │
-│     [ [Sparkles] Alegría ] [ [Brain] Pensar ] [ [Zap] Sorpresa ] [ [Flame] ]   │ ← Reacciones rápidas
+│                         ( 🎙 )                         │ ← BigMic 74px de cristal
 │                                                        │
-│                    ▁▂▃▅▇▅▃▂▁▂▃▅▇▅▃▂                    │ ← Onda viva HD (3 estilos)
 │                                                        │
-│                      Hola, soy AVI                     │
-│         Toca el micrófono y háblame, o desliza         │
-│               hacia arriba para escribir               │
-│                                                        │
-│                         ( 🎙 )                         │ ← Mic grande 74px
-│                    Toca para hablar                    │
-│                                                        │
-│          [ Registrar mi glucosa ] [ Ver historial ]    │ ← Sugerencias chip
-│                                                        │
-│       ▲ Desliza hacia arriba para ver conversación     │ ← Barra gestual
+│       ▲ Desliza hacia arriba para ver conversación     │ ← Barra gestual mínima
 └────────────────────────────────────────────────────────┘
 ```
 

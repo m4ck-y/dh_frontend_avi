@@ -62,3 +62,66 @@ import { Sparkles, Brain, Zap, Flame, Smile } from "lucide-react";
 | **[`docs/SCREENS.md`](./SCREENS.md)** | Especificación visual completa: wireframes ASCII del Escenario Protagonista, la Barra de Telemetría Biológica, el Menú Radial Orbital (FAB), el panel de Ajustes/Simulación (`test_settings`) y la vista Desktop Split View. |
 | **[`docs/BIOLOGICAL_BEHAVIOR.md`](./BIOLOGICAL_BEHAVIOR.md)** | Motor de vida del avatar anime basado en proyectos embebidos ESP32 (*Stack-chan*, *XiaoZhi*, *Cozmo*): generador de sacadas involuntarias, parpadeo estocástico Poisson y decoradores anime vectoriales (`Face.tsx`). |
 | **[`docs/README.md`](./README.md)** | Este documento: directrices de diseño, iconografía obligatoria (`lucide-react`) y política de cero emojis. |
+
+---
+
+## 4. Hoja de Ruta de Mejoras Planificadas (Backlog de Próximas Funciones)
+
+Las siguientes características han sido aprobadas conceptualmente y documentadas aquí. **No se desarrollarán en el código de la aplicación hasta que el usuario dé la confirmación explícita para comenzar su implementación:**
+
+### 4.1 Expresividad Facial y Dinámica Física
+1. **Lip-Sync Real por Amplitud de Audio (Visemas Fonéticos):**
+   * Conexión directa del analizador RMS de `AudioContext` y eventos del sintetizador de voz (`SpeechSynthesisUtterance.onboundary` o stream TTS) para modular proceduralmente la apertura de la boca en tiempo real según el volumen y fonemas (vocales abiertas vs. consonantes bilabiales).
+2. **Micro-Respiración Corporal 2.5D:**
+   * Ciclo continuo de oscilación sinusoidal suave en estado `idle` (amplitud $1.5\text{ px}$ en $Y$, período de $3.6\text{ s}$) que emula la caja torácica pulmonar sin rigidez geométrica.
+
+### 4.2 Inteligencia Conversacional de Voz
+3. **Detección Automática de Silencio (Voice Activity Detection - VAD):**
+   * Monitoreo del flujo de micrófono en tiempo real. Al detectar $1.2\text{ s}$ continuos de silencio por debajo del umbral de ruido ambiental tras haber hablado, AVI finaliza automáticamente el dictado y procesa la consulta sin necesidad de tocar la pantalla.
+4. **Capacidad de Interrupción (Barge-in):**
+   * Cancelación inmediata de la síntesis vocal de AVI si el usuario comienza a hablar durante la respuesta o interactúa con el micrófono/pantalla, pasando instantáneamente al modo de escucha receptiva.
+5. **Efecto Máquina de Escribir y Streaming:**
+   * Revelado progresivo de los mensajes palabra por palabra con sincronización fluida mientras AVI reproduce su respuesta, creando una sensación de procesamiento en tiempo real.
+
+### 4.3 Integración con Sensores de Dispositivo y PWA
+6. **Giroscopio y Acelerómetro del Teléfono (Device Orientation):**
+   * Lectura de los eventos `deviceorientation` (`beta` y `gamma`) en dispositivos móviles para inclinar suavemente la perspectiva 3D del avatar y desplazar la mirada hacia el ángulo físico en que el usuario sostiene el teléfono.
+7. **Prompt de Instalación PWA Nativo:**
+   * Captura del evento `beforeinstallprompt` para mostrar un botón sutil y elegante de instalación en pantalla de inicio con diseño glassmorphic y persistencia en `localStorage`.
+
+### 4.4 Inteligencia Clínica y UI Generativa (LiberSalus)
+8. **Componentes Ricos en el Chat (Intelligent UI):**
+   * Renderizado de componentes gráficos interactivos en el hilo de mensajes cuando se mencionen parámetros clínicos:
+     - Tarjetas semafóricas de glucosa, presión arterial y pulso.
+     - Minigráficos *Sparkline* de tendencia histórica.
+     - Botones de confirmación para almacenar métricas directamente en el PHR (*Personal Health Record*).
+9. **Selector de Tono de Personalidad en `test_settings`:**
+   * Selector modal para ajustar el temperamento de AVI según el contexto:
+     - *Clínico y Preciso:* Lenguaje técnico y formal para profesionales de la salud.
+     - *Empático y Acompañante:* Lenguaje cálido y paciente para personas mayores o enfermos crónicos.
+     - *Dinámico y Alentador:* Enfoque motivacional para prevención y estilo de vida activo.
+
+### 4.5 Acabado Visual y Óptica Glassmorphic
+10. **Barrido de Luz Especular (Shimmer/Sheen):**
+    * Reflejo cromático difuso y suave que recorre los bordes de vidrio al pasar el cursor o al cambiar de estado emocional, acentuando el efecto de cristal líquido premium.
+
+---
+
+## 5. Arquitectura de Purificación y Foco Protagonista (Stage Focus UX)
+
+Documentación del rediseño para maximizar el protagonismo del rostro y la inmersión cinematográfica:
+
+1. **Apertura de Chat Estrictamente Manual (Sin Auto-Expand):**
+   * Al terminar de dictar o escuchar, la hoja de chat **no se auto-expande**. AVI responde mediante voz y expresión en el escenario.
+   * El chat sólo se abre por acción deliberada del usuario: deslizar hacia arriba (`Swipe Up`), clic en el tirador inferior o presionar la tecla `/`.
+2. **Eliminación de Chips de Emoción en el Escenario:**
+   * Las pastillas de test rápido (`Alegría`, `Pensar`, `Sorpresa`, `Molesta`, `Auto`) se retiran del escenario principal y residen exclusivamente dentro del modal *Catálogo de Expresiones*.
+3. **Reubicación Periférica de la Telemetría (BPM / SYNC % / Estado):**
+   * El monitor vital se desplaza del centro hacia una esquina/lateral sutil (barra ambiental superior o discreto anclaje inferior), liberando el campo de visión del rostro.
+4. **Traslado del Selector de Estilo de Onda a `test_settings`:**
+   * La onda visual acústica permanece viva y reactiva, pero sus botones de cambio de estilo (Fluido / Barras / Orbital) se trasladan al panel de *Ajustes y Simulación (`test_settings`)*.
+5. **Limpieza Total de Textos e Instrucciones del Escenario:**
+   * Se eliminan el título `"Hola, soy AVI"`, las instrucciones redundantes (`"Toca el micrófono y háblame..."`), el pie de acción y los chips de sugerencias del escenario.
+   * El escenario queda limpio: **Rostro Anime + Halo Holográfico + Visualizador Acústico + Micrófono Protagonista + Tirador Gestual Discreto**.
+
+
