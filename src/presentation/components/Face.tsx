@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, type ReactNode } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useMotionValue, useSpring, useTransform, type MotionValue } from "motion/react";
 import styles from "./Face.module.css";
 
 export type Mood = "idle" | "listening" | "thinking" | "speaking" | "sleeping";
@@ -116,6 +116,7 @@ const PALETTES: Record<Expression, Palette> = {
 export interface FaceProps {
   expression: Expression;
   pointer?: { x: number; y: number };
+  mouthLevel?: MotionValue<number>;
   pokeCount?: number;
   pokeMessage?: string | null;
   onFaceClick?: (e: React.MouseEvent) => void;
@@ -398,7 +399,7 @@ function AnimeBrows({ expression }: { expression: Expression }) {
 }
 
 /* Bocas anime expresivas y finas con estética manga y trazo limpio */
-function AnimeMouth({ expression }: { expression: Expression }) {
+function AnimeMouth({ expression, mouthScale }: { expression: Expression; mouthScale?: MotionValue<number> }) {
   switch (expression) {
     case "sleeping":
       return (
@@ -429,7 +430,10 @@ function AnimeMouth({ expression }: { expression: Expression }) {
 
     case "listening":
       return (
-        <g className={`${styles.mouthWrapper} ${styles.mouthOoh}`}>
+        <motion.g
+          className={mouthScale ? `${styles.mouthWrapper} ${styles.mouthSynced}` : `${styles.mouthWrapper} ${styles.mouthOoh}`}
+          style={mouthScale ? { scaleY: mouthScale } : undefined}
+        >
           {/* Boca atenta anime fina y receptiva (curva dulce entreabierta) */}
           <path
             d="M 123.5 140.5 Q 127 139.5 130 140 Q 133 139.5 136.5 140.5"
@@ -456,7 +460,7 @@ function AnimeMouth({ expression }: { expression: Expression }) {
             strokeLinecap="round"
             opacity="0.45"
           />
-        </g>
+        </motion.g>
       );
 
     case "annoyed":
@@ -651,7 +655,10 @@ function AnimeMouth({ expression }: { expression: Expression }) {
 
     case "speaking":
       return (
-        <g className={`${styles.mouthWrapper} ${styles.mouthTalk}`}>
+        <motion.g
+          className={mouthScale ? `${styles.mouthWrapper} ${styles.mouthSynced}` : `${styles.mouthWrapper} ${styles.mouthTalk}`}
+          style={mouthScale ? { scaleY: mouthScale } : undefined}
+        >
           {/* Contorno limpio estilizado anime modulando visemas */}
           <path
             d="M 120 137.5 Q 130 135.5 140 137.5 C 140.5 147, 136 152, 130 152 C 124 152, 119.5 147, 120 137.5 Z"
@@ -679,7 +686,7 @@ function AnimeMouth({ expression }: { expression: Expression }) {
             strokeLinecap="round"
             opacity="0.5"
           />
-        </g>
+        </motion.g>
       );
 
     default:
@@ -765,6 +772,7 @@ function AnimeSleepBubble() {
 export default function Face({
   expression,
   pointer,
+  mouthLevel,
   pokeCount = 0,
   pokeMessage = null,
   onFaceClick,
@@ -876,6 +884,11 @@ export default function Face({
   // Inclinación 3D sutil hacia el mouse
   const tiltX = (activePointer.y * -6).toFixed(2);
   const tiltY = (activePointer.x * 8).toFixed(2);
+
+  // Boca sincronizada a la energía de voz (real en dictado, simulada por mood)
+  const mouthFallback = useMotionValue(0);
+  const mouthSpring = useSpring(mouthLevel ?? mouthFallback, { stiffness: 260, damping: 22 });
+  const mouthScale = useTransform(mouthSpring, (v) => 0.6 + v * 0.8);
 
   const palette = PALETTES[expression] || PALETTES.idle;
 
@@ -1154,7 +1167,7 @@ export default function Face({
               exit={{ opacity: 0, scale: 0.93, y: -1.5 }}
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             >
-              <AnimeMouth expression={expression} />
+              <AnimeMouth expression={expression} mouthScale={mouthScale} />
             </motion.g>
           </AnimatePresence>
         </g>

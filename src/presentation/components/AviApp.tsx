@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useMotionValue } from "motion/react";
 import {
   Activity,
   ChevronDown,
@@ -111,6 +111,7 @@ export default function AviApp() {
 
   // Estados interactivos estilo avatar lab
   const [isSleeping, setIsSleeping] = useState(false);
+  const mouthLevel = useMotionValue(0);
   const [pokeCount, setPokeCount] = useState(0);
   const [pokeMessage, setPokeMessage] = useState<string | null>(null);
 
@@ -597,6 +598,7 @@ export default function AviApp() {
         <div className={styles.stageFace}>
           <Face
             expression={expression}
+            mouthLevel={mouthLevel}
             pokeCount={pokeCount}
             pokeMessage={pokeMessage}
             onFaceClick={handleFaceClick}
@@ -608,6 +610,7 @@ export default function AviApp() {
           micOn={listening}
           styleVariant={waveStyle}
           showMeta={false}
+          levelMotionValue={mouthLevel}
         />
 
         {/* Botón de voz protagonista */}

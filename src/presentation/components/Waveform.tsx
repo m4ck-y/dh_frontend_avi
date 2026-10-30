@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { MotionValue } from "motion/react";
 import type { Mood } from "./Face";
 import styles from "./Waveform.module.css";
 
@@ -13,6 +14,7 @@ interface WaveformProps {
   styleVariant?: WaveStyle;
   onStyleChange?: (style: WaveStyle) => void;
   showMeta?: boolean;
+  levelMotionValue?: MotionValue<number>;
 }
 
 export default function Waveform({
@@ -21,6 +23,7 @@ export default function Waveform({
   styleVariant = "fluid",
   onStyleChange,
   showMeta = false,
+  levelMotionValue,
 }: WaveformProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const levelTextRef = useRef<HTMLSpanElement | null>(null);
@@ -172,6 +175,7 @@ export default function Waveform({
       phaseRef.current += waveSpeed;
 
       const level = smoothedLevelRef.current;
+      levelMotionValue?.set(level);
       if (levelTextRef.current && micOn) {
         levelTextRef.current.textContent = `Voz activa (${Math.round(level * 100)}%)`;
       }
