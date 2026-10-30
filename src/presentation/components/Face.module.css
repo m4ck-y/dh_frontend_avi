@@ -151,6 +151,7 @@
 .mouthThinking,
 .mouthSurprise,
 .mouthAnger,
+.mouthAnnoyed,
 .mouthSad,
 .mouthSleep,
 .nose {
@@ -255,19 +256,19 @@
   70% { transform: scale(0.98, 0.98) translateY(0.2px); }
 }
 
-/* Boca escuchando: pulsación suave y receptiva */
+/* Boca escuchando: pulsación sutil receptiva y atenta */
 .mouthOoh {
   transform-box: fill-box;
-  transform-origin: 130px 142px;
-  animation: animeOohPulse 1.6s ease-in-out infinite;
+  transform-origin: 130px 141px;
+  animation: animeOohPulse 2.4s ease-in-out infinite;
 }
 
 @keyframes animeOohPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.12, 0.92); }
+  0%, 100% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.03, 1.04) translateY(-0.3px); }
 }
 
-/* Boca pensativa: ligero vaivén */
+/* Boca pensativa: ligero vaivén asimétrico sutil */
 .mouthThinking {
   transform-box: fill-box;
   transform-origin: 130px 142px;
@@ -276,46 +277,57 @@
 
 @keyframes animeThinkPout {
   0%, 100% { transform: rotate(0deg) translateY(0); }
-  50% { transform: rotate(1.2deg) translateY(-0.4px); }
+  50% { transform: rotate(1.4deg) translateY(-0.3px); }
 }
 
-/* Boca sorpresa: leve respiro rápido */
+/* Boca sorpresa: leve respiro y apertura anime */
 .mouthSurprise {
   transform-box: fill-box;
-  transform-origin: 130px 143px;
+  transform-origin: 130px 142px;
   animation: animeSurpriseGasp 2.2s ease-in-out infinite;
 }
 
 @keyframes animeSurpriseGasp {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.06, 1.08); }
+  50% { transform: scale(1.05, 1.06); }
 }
 
-/* Boca enojo: contracción rápida */
+/* Boca molesta (pout): puchero tsundere anime sutil */
+.mouthAnnoyed {
+  transform-box: fill-box;
+  transform-origin: 130px 143px;
+  animation: animeAnnoyedPout 2.8s ease-in-out infinite;
+}
+
+@keyframes animeAnnoyedPout {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.04, 0.98) translateY(-0.4px); }
+}
+
+/* Boca enojo: tensión contenida de dientes apretados */
 .mouthAnger {
   transform-box: fill-box;
   transform-origin: 130px 143px;
-  animation: animeAngerTwitch 0.55s ease-in-out infinite alternate;
+  animation: animeAngerClench 1.8s ease-in-out infinite;
 }
 
-@keyframes animeAngerTwitch {
-  0% { transform: scale(1) rotate(-0.5deg); }
-  100% { transform: scale(1.05, 1.02) rotate(0.8deg); }
+@keyframes animeAngerClench {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03, 0.98); }
 }
 
-/* Boca triste: temblor fino con sollozo */
+/* Boca triste: temblor fino con sollozo anime */
 .mouthSad {
   transform-box: fill-box;
   transform-origin: 130px 143px;
-  animation: animeTrembleLip 1.4s ease-in-out infinite;
+  animation: animeTrembleLip 1.6s ease-in-out infinite;
 }
 
 @keyframes animeTrembleLip {
   0%, 100% { transform: translate(0, 0); }
-  20% { transform: translate(-0.6px, 0.4px); }
-  40% { transform: translate(0.6px, -0.3px); }
-  60% { transform: translate(-0.4px, -0.2px); }
-  80% { transform: translate(0.4px, 0.3px); }
+  25% { transform: translate(-0.4px, 0.3px); }
+  50% { transform: translate(0.4px, -0.2px); }
+  75% { transform: translate(-0.3px, -0.2px); }
 }
 
 /* Boca durmiendo y burbuja anime de sueño */

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import styles from "./Face.module.css";
 
 export type Mood = "idle" | "listening" | "thinking" | "speaking" | "sleeping";
@@ -332,15 +333,15 @@ function AnimeBrows({ expression }: { expression: Expression }) {
     case "sleeping":
       return (
         <g className={styles.brows}>
-          <path d="M 56 56 Q 78 50 102 54" strokeWidth="2.8" fill="none" strokeLinecap="round" />
-          <path d="M 158 54 Q 182 50 204 56" strokeWidth="2.8" fill="none" strokeLinecap="round" />
+          <path d="M 56 56 Q 78 51 102 54" strokeWidth="2.8" fill="none" strokeLinecap="round" />
+          <path d="M 158 54 Q 182 51 204 56" strokeWidth="2.8" fill="none" strokeLinecap="round" />
         </g>
       );
     case "joy":
       return (
         <g className={styles.brows}>
-          <path d="M 52 46 Q 78 34 104 44" strokeWidth="3.2" fill="none" strokeLinecap="round" />
-          <path d="M 156 44 Q 182 34 208 46" strokeWidth="3.2" fill="none" strokeLinecap="round" />
+          <path d="M 52 45 Q 78 34 104 44" strokeWidth="3.2" fill="none" strokeLinecap="round" />
+          <path d="M 156 44 Q 182 34 208 45" strokeWidth="3.2" fill="none" strokeLinecap="round" />
         </g>
       );
     case "surprise":
@@ -351,33 +352,39 @@ function AnimeBrows({ expression }: { expression: Expression }) {
         </g>
       );
     case "anger":
+      return (
+        <g className={styles.brows}>
+          <path d="M 50 40 Q 78 48 106 63" strokeWidth="3.6" fill="none" strokeLinecap="round" />
+          <path d="M 154 63 Q 182 48 210 40" strokeWidth="3.6" fill="none" strokeLinecap="round" />
+          <path d="M 127 58 L 130 63 L 133 58" strokeWidth="2.2" fill="none" strokeLinecap="round" opacity="0.8" />
+        </g>
+      );
     case "annoyed":
       return (
         <g className={styles.brows}>
-          <path d="M 52 42 Q 78 48 106 62" strokeWidth="3.6" fill="none" strokeLinecap="round" />
-          <path d="M 154 62 Q 182 48 208 42" strokeWidth="3.6" fill="none" strokeLinecap="round" />
-          <path d="M 127 58 L 130 63 L 133 58" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.75" />
+          <path d="M 54 44 Q 78 48 104 57" strokeWidth="3.2" fill="none" strokeLinecap="round" />
+          <path d="M 156 57 Q 182 48 206 44" strokeWidth="3.2" fill="none" strokeLinecap="round" />
         </g>
       );
     case "sad":
       return (
         <g className={styles.brows}>
-          <path d="M 54 58 Q 80 54 104 42" strokeWidth="3.2" fill="none" strokeLinecap="round" />
-          <path d="M 156 42 Q 180 54 206 58" strokeWidth="3.2" fill="none" strokeLinecap="round" />
+          <path d="M 54 58 Q 80 54 104 43" strokeWidth="3.2" fill="none" strokeLinecap="round" />
+          <path d="M 156 43 Q 180 54 206 58" strokeWidth="3.2" fill="none" strokeLinecap="round" />
         </g>
       );
     case "thinking":
       return (
         <g className={styles.brows}>
-          <path d="M 52 44 Q 78 36 104 44" strokeWidth="3.2" fill="none" strokeLinecap="round" />
+          <path d="M 52 44 Q 78 36 104 43" strokeWidth="3.2" fill="none" strokeLinecap="round" />
           <path d="M 156 53 Q 182 49 208 55" strokeWidth="3.2" fill="none" strokeLinecap="round" />
         </g>
       );
     case "listening":
       return (
         <g className={styles.brows}>
-          <path d="M 54 48 Q 78 39 104 46" strokeWidth="3" fill="none" strokeLinecap="round" />
-          <path d="M 156 46 Q 182 39 206 48" strokeWidth="3" fill="none" strokeLinecap="round" />
+          <path d="M 54 47 Q 78 39 104 46" strokeWidth="3" fill="none" strokeLinecap="round" />
+          <path d="M 156 45 Q 182 37 206 47" strokeWidth="3" fill="none" strokeLinecap="round" />
         </g>
       );
     default:
@@ -390,7 +397,7 @@ function AnimeBrows({ expression }: { expression: Expression }) {
   }
 }
 
-/* Bocas anime expresivas y finas con anatomía manga */
+/* Bocas anime expresivas y finas con estética manga y trazo limpio */
 function AnimeMouth({ expression }: { expression: Expression }) {
   switch (expression) {
     case "sleeping":
@@ -419,55 +426,253 @@ function AnimeMouth({ expression }: { expression: Expression }) {
           </g>
         </g>
       );
+
+    case "listening":
+      return (
+        <g className={`${styles.mouthWrapper} ${styles.mouthOoh}`}>
+          {/* Boca atenta anime fina y receptiva (curva dulce entreabierta) */}
+          <path
+            d="M 123.5 140.5 Q 127 139.5 130 140 Q 133 139.5 136.5 140.5"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            fill="none"
+            strokeLinecap="round"
+          />
+          {/* Apertura sutil suavemente redondeada (escucha atenta) */}
+          <path
+            d="M 126 141.5 Q 130 144.2 134 141.5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            fill="none"
+            strokeLinecap="round"
+          />
+          {/* Toque de brillo/rubor en labio inferior */}
+          <ellipse cx="130" cy="144.5" rx="2.2" ry="0.9" fill="currentColor" opacity="0.25" />
+          <path
+            d="M 128.5 146.5 Q 130 147 131.5 146.5"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            fill="none"
+            strokeLinecap="round"
+            opacity="0.45"
+          />
+        </g>
+      );
+
+    case "annoyed":
+      return (
+        <g className={`${styles.mouthWrapper} ${styles.mouthAnnoyed}`}>
+          {/* Labio de puchero anime 'wavy pout' característico tsundere (forma omega sutil) */}
+          <path
+            d="M 122 143 Q 125.5 139.8 128 142 Q 130 143 132 142 Q 134.5 139.8 138 143"
+            stroke="currentColor"
+            strokeWidth="2"
+            fill="none"
+            strokeLinecap="round"
+          />
+          {/* Pestañas de tensión en las comisuras del puchero */}
+          <path
+            d="M 121.5 142.5 L 120.2 144.2"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            opacity="0.6"
+          />
+          <path
+            d="M 138.5 142.5 L 139.8 144.2"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            opacity="0.6"
+          />
+          {/* Sombra de puchero en el labio inferior con rubor */}
+          <ellipse cx="130" cy="145.8" rx="3" ry="1.1" fill="#f43f5e" opacity="0.4" />
+          <path
+            d="M 128 147.8 Q 130 148.4 132 147.8"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            fill="none"
+            strokeLinecap="round"
+            opacity="0.55"
+          />
+        </g>
+      );
+
+    case "anger":
+      return (
+        <g className={`${styles.mouthWrapper} ${styles.mouthAnger}`}>
+          {/* Línea principal de dientes apretados con tensión y determinación */}
+          <path
+            d="M 120 142.5 Q 130 140.2 140 142.5"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            fill="none"
+            strokeLinecap="round"
+          />
+          {/* Hendidura de dientes apretados formando tensión maxilar */}
+          <path
+            d="M 122.5 144.5 Q 130 142.8 137.5 144.5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            fill="none"
+            strokeLinecap="round"
+            opacity="0.75"
+          />
+          {/* Tensión en las comisuras estilo manga */}
+          <path
+            d="M 120 140.5 L 120 145"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 140 140.5 L 140 145"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+          {/* Sombra de enfado bajo el labio */}
+          <ellipse cx="130" cy="147.2" rx="3" ry="1" fill="#dc2626" opacity="0.35" />
+          <path
+            d="M 127.5 149 Q 130 149.6 132.5 149"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            fill="none"
+            strokeLinecap="round"
+            opacity="0.6"
+          />
+        </g>
+      );
+
+    case "thinking":
+      return (
+        <g className={`${styles.mouthWrapper} ${styles.mouthThinking}`}>
+          {/* Labio asimétrico pensativo anime fino */}
+          <path
+            d="M 122 140.5 Q 126 138.8 130 141.2 Q 134.5 143.5 138 140.5"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            fill="none"
+            strokeLinecap="round"
+          />
+          {/* Toque de labio pensativo */}
+          <ellipse cx="129.5" cy="144" rx="2.2" ry="0.9" fill="currentColor" opacity="0.25" />
+          <path
+            d="M 128.5 146.2 Q 130 146.8 131.5 146.2"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            fill="none"
+            strokeLinecap="round"
+            opacity="0.45"
+          />
+        </g>
+      );
+
     case "joy":
       return (
         <g className={`${styles.mouthWrapper} ${styles.mouthJoy}`}>
-          {/* Cavidad bucal anime clásica en forma de frijol/medialuna con contorno fino */}
+          {/* Sonrisa radiante curva anime fina */}
           <path
-            d="M 116 136 Q 130 137.8 144 136 C 144.5 149.5, 138.5 157, 130 157 C 121.5 157, 115.5 149.5, 116 136 Z"
-            fill="url(#anime-mouth-cavity)"
-            stroke="#5c0b20"
-            strokeWidth="1.8"
-            strokeLinejoin="round"
+            d="M 118 138 Q 130 148.5 142 138"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            fill="none"
+            strokeLinecap="round"
           />
-          {/* Dientes superiores con línea curva limpia */}
+          {/* Relleno sutil y suave de sonrisa alegre */}
           <path
-            d="M 117 136.4 Q 130 138.2 143 136.4 C 140 140.2, 135 141, 130 141 C 125 141, 120 140.2, 117 136.4 Z"
-            fill="url(#anime-teeth-grad)"
-          />
-          {/* Lengua anime suave rosada */}
-          <path
-            d="M 121 152 C 122 146, 125.5 144, 130 144 C 134.5 144, 138 146, 139 152 C 136.5 156, 133 157, 130 157 C 127 157, 123.5 156, 121 152 Z"
+            d="M 119.5 138.5 Q 130 148 140.5 138.5 C 137 141.2, 133.5 142.2, 130 142.2 C 126.5 142.2, 123 141.2, 119.5 138.5 Z"
             fill="url(#anime-tongue-grad)"
+            opacity="0.75"
           />
-          {/* Brillo especular anime en la comisura */}
-          <ellipse cx="140" cy="138.5" rx="1.4" ry="0.9" fill="#ffffff" opacity="0.8" />
+          {/* Pequeñas comisuras hacia arriba */}
+          <path
+            d="M 117 137 Q 118 138.5 119 138"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 143 137 Q 142 138.5 141 138"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
+          <ellipse cx="130" cy="149" rx="2.5" ry="1" fill="#f59e0b" opacity="0.35" />
         </g>
       );
+
+    case "surprise":
+      return (
+        <g className={`${styles.mouthWrapper} ${styles.mouthSurprise}`}>
+          {/* Boquita ovalada de sorpresa anime limpia */}
+          <ellipse
+            cx="130"
+            cy="142"
+            rx="5.5"
+            ry="7.5"
+            fill="url(#anime-mouth-cavity)"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          />
+          {/* Dientito superior visible y limpio */}
+          <path
+            d="M 126 137.5 Q 130 136.5 134 137.5 C 133 139, 131.5 139.5, 130 139.5 C 128.5 139.5, 127 139, 126 137.5 Z"
+            fill="#ffffff"
+          />
+          {/* Lengüita suave en la parte inferior */}
+          <ellipse cx="130" cy="146.5" rx="3.5" ry="2.2" fill="url(#anime-tongue-grad)" />
+        </g>
+      );
+
+    case "sad":
+      return (
+        <g className={`${styles.mouthWrapper} ${styles.mouthSad}`}>
+          {/* Labio triste anime con curva temblorosa hacia abajo */}
+          <path
+            d="M 122 144 Q 126 141.2 130 141.8 Q 134 141.2 138 144"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            fill="none"
+            strokeLinecap="round"
+          />
+          {/* Hendidura temblorosa de labio inferior */}
+          <path
+            d="M 126 146 Q 130 147.2 134 146"
+            stroke="currentColor"
+            strokeWidth="1.3"
+            fill="none"
+            strokeLinecap="round"
+            opacity="0.6"
+          />
+          <ellipse cx="130" cy="144.5" rx="2" ry="0.8" fill="#60a5fa" opacity="0.35" />
+        </g>
+      );
+
     case "speaking":
       return (
         <g className={`${styles.mouthWrapper} ${styles.mouthTalk}`}>
-          {/* Boca parlante anime modulada y fina con visemas */}
+          {/* Contorno limpio estilizado anime modulando visemas */}
           <path
-            d="M 117 136 Q 130 134.5 143 136 C 143.5 148.5, 138 154.5, 130 154.5 C 122 154.5, 116.5 148.5, 117 136 Z"
+            d="M 120 137.5 Q 130 135.5 140 137.5 C 140.5 147, 136 152, 130 152 C 124 152, 119.5 147, 120 137.5 Z"
             fill="url(#anime-mouth-cavity)"
             stroke="currentColor"
             strokeWidth="1.8"
             strokeLinejoin="round"
           />
-          {/* Arco de dientes superiores */}
+          {/* Dientes superiores limpios */}
           <path
-            d="M 118 136.4 Q 130 135 142 136.4 C 139 139.6, 135 140.4, 130 140.4 C 125 140.4, 121 139.6, 118 136.4 Z"
-            fill="url(#anime-teeth-grad)"
+            d="M 121 137.8 Q 130 136.2 139 137.8 C 136.5 140.5, 133.5 141.2, 130 141.2 C 126.5 141.2, 123.5 140.5, 121 137.8 Z"
+            fill="#ffffff"
           />
-          {/* Lengua modulando fonemas */}
+          {/* Lengua anime suave */}
           <path
-            d="M 122 151 C 123 146, 126 144.2, 130 144.2 C 134 144.2, 137 146, 138 151 C 135.5 153.6, 133 154.5, 130 154.5 C 127 154.5, 124.5 153.6, 122 151 Z"
+            d="M 123 149 C 124 145, 127 143.5, 130 143.5 C 133 143.5, 136 145, 137 149 C 134.5 151.2, 132 152, 130 152 C 128 152, 125.5 151.2, 123 149 Z"
             fill="url(#anime-tongue-grad)"
           />
-          {/* Resalte sutil de labio inferior */}
+          {/* Sombra de labio inferior */}
           <path
-            d="M 128.8 157.5 Q 130 158 131.2 157.5"
+            d="M 128.5 154.5 Q 130 155 131.5 154.5"
             stroke="currentColor"
             strokeWidth="1.3"
             fill="none"
@@ -476,124 +681,11 @@ function AnimeMouth({ expression }: { expression: Expression }) {
           />
         </g>
       );
-    case "listening":
-      return (
-        <g className={`${styles.mouthWrapper} ${styles.mouthOoh}`}>
-          {/* Pequeña boca atenta 'o' estilo anime */}
-          <path
-            d="M 126 138.5 Q 130 136 134 138.5 C 135.5 143.5, 134.5 148, 130 148 C 125.5 148, 124.5 143.5, 126 138.5 Z"
-            fill="url(#anime-mouth-cavity)"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinejoin="round"
-          />
-          {/* Pequeño diente visible */}
-          <path
-            d="M 127.5 138.8 Q 130 137.2 132.5 138.8 C 132 140.8, 131 141.2, 130 141.2 C 129 141.2, 128 140.8, 127.5 138.8 Z"
-            fill="#ffffff"
-          />
-          {/* Pequeña lengua rosada */}
-          <ellipse cx="130" cy="146" rx="2.8" ry="1.7" fill="url(#anime-tongue-grad)" />
-        </g>
-      );
-    case "thinking":
-      return (
-        <g className={`${styles.mouthWrapper} ${styles.mouthThinking}`}>
-          {/* Boca anime pensativa / pouting con asimetría sutil */}
-          <path
-            d="M 122 140.5 Q 126.5 138.5 131 141 Q 135 142 138.5 140"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            fill="none"
-            strokeLinecap="round"
-          />
-          <ellipse cx="129.5" cy="143.8" rx="2.4" ry="1" fill="#fb7185" opacity="0.32" />
-          <path
-            d="M 129 146.5 Q 130.5 147 132 146.5"
-            stroke="currentColor"
-            strokeWidth="1.3"
-            fill="none"
-            strokeLinecap="round"
-            opacity="0.45"
-          />
-        </g>
-      );
-    case "surprise":
-      return (
-        <g className={`${styles.mouthWrapper} ${styles.mouthSurprise}`}>
-          {/* Boca vertical ovalada anime con dientes y lengua */}
-          <ellipse
-            cx="130"
-            cy="143"
-            rx="8"
-            ry="11.5"
-            fill="url(#anime-mouth-cavity)"
-            stroke="currentColor"
-            strokeWidth="1.9"
-          />
-          {/* Asomo de diente superior */}
-          <path
-            d="M 124 135 Q 130 133 136 135 C 134 137.5, 132 138.2, 130 138.2 C 128 138.2, 126 137.5, 124 135 Z"
-            fill="#ffffff"
-          />
-          {/* Fondo de lengua rosada */}
-          <ellipse cx="130" cy="150" rx="5.2" ry="3.6" fill="url(#anime-tongue-grad)" />
-          {/* Brillo especular */}
-          <circle cx="134" cy="139" r="1.2" fill="#ffffff" opacity="0.8" />
-        </g>
-      );
-    case "anger":
-    case "annoyed":
-      return (
-        <g className={`${styles.mouthWrapper} ${styles.mouthAnger}`}>
-          {/* Boca anime de enojo con colmillo afilado (yaeba) característico */}
-          <path
-            d="M 116 138 Q 123 135 130 135.5 Q 137 135 144 138 C 143 149.5, 138 154.5, 130 154 C 122 154.5, 117 149.5, 116 138 Z"
-            fill="url(#anime-mouth-cavity-dark)"
-            stroke="#7f1d1d"
-            strokeWidth="1.9"
-            strokeLinejoin="round"
-          />
-          {/* Dientes superiores con colmillo afilado a la derecha (yaeba) */}
-          <path
-            d="M 117 138.2 L 136.5 136 L 138.8 141.2 L 141 136.4 L 143 138.2 C 140 140.6, 135 140.8, 130 140.8 C 125 140.8, 120 140.2, 117 138.2 Z"
-            fill="#ffffff"
-          />
-          {/* Dientes inferiores con línea fina */}
-          <path
-            d="M 119 152.2 Q 130 149.4 141 152.2 C 138 154, 130 154, 119 152.2 Z"
-            fill="#ffffff"
-            opacity="0.9"
-          />
-          {/* Lengua de fondo tenso */}
-          <ellipse cx="130" cy="147.5" rx="7.2" ry="4" fill="#f43f5e" />
-        </g>
-      );
-    case "sad":
-      return (
-        <g className={`${styles.mouthWrapper} ${styles.mouthSad}`}>
-          {/* Boca temblorosa anime con labio ondulante hacia abajo */}
-          <path
-            d="M 117 142.5 C 121 138, 125 140, 130 139 C 135 140, 139 138, 143 142.5 C 141 151, 136 153.5, 130 153 C 124 153.5, 119 151, 117 142.5 Z"
-            fill="url(#anime-mouth-cavity)"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinejoin="round"
-          />
-          {/* Dientes superiores temblando */}
-          <path
-            d="M 119 142 Q 130 140.2 141 142 C 138 144, 134 144.5, 130 144.5 C 126 144.5, 122 144, 119 142 Z"
-            fill="#ffffff"
-            opacity="0.9"
-          />
-          {/* Lengua triste */}
-          <ellipse cx="130" cy="149" rx="6.5" ry="3.2" fill="url(#anime-tongue-grad)" opacity="0.85" />
-        </g>
-      );
+
     default:
       return (
         <g className={`${styles.mouthWrapper} ${styles.mouthIdle}`}>
-          {/* Labio superior fino con curvatura anime delicada */}
+          {/* Labio superior fino con curvatura anime delicada (idle de referencia) */}
           <path
             d="M 121 140 Q 125.5 142.2 130 142 Q 134.5 142.2 139 140"
             stroke="currentColor"
@@ -888,22 +980,61 @@ export default function Face({
 
         {/* Capa de expresión con interpolación fluida entre emociones */}
         <g className={styles.faceElements}>
-          {/* Cejas Anime con transición */}
-          <AnimeBrows expression={expression} />
+          {/* Cejas Anime con transición fluida */}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.g
+              key={expression}
+              initial={{ opacity: 0, y: -2 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 2 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <AnimeBrows expression={expression} />
+            </motion.g>
+          </AnimatePresence>
 
           {/* Marca de enojo anime cuando se molesta o enojo */}
-          {isAnnoyed && <AnimeAngerVein />}
+          <AnimatePresence>
+            {isAnnoyed && (
+              <motion.g
+                initial={{ scale: 0, opacity: 0, rotate: -20 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                exit={{ scale: 0, opacity: 0, rotate: 20 }}
+                transition={{ type: "spring", stiffness: 420, damping: 22 }}
+              >
+                <AnimeAngerVein />
+              </motion.g>
+            )}
+          </AnimatePresence>
 
           {/* Gotita de sudor anime al pensar */}
-          {expression === "thinking" && <AnimeSweatdrop />}
+          <AnimatePresence>
+            {expression === "thinking" && (
+              <motion.g
+                initial={{ scale: 0.3, y: -6, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.3, y: 6, opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+              >
+                <AnimeSweatdrop />
+              </motion.g>
+            )}
+          </AnimatePresence>
 
           {/* Burbuja de respiración y Zzz al dormir */}
-          {isSleeping && (
-            <>
-              <AnimeSleepBubble />
-              <AnimeZzz />
-            </>
-          )}
+          <AnimatePresence>
+            {isSleeping && (
+              <motion.g
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.3 }}
+              >
+                <AnimeSleepBubble />
+                <AnimeZzz />
+              </motion.g>
+            )}
+          </AnimatePresence>
 
           {/* Sonrojo Anime */}
           <g
@@ -981,32 +1112,51 @@ export default function Face({
           )}
 
           {/* Lágrimas animadas para Tristeza */}
-          {expression === "sad" && (
-            <g className={styles.tearsStream}>
-              <path
-                className={styles.tearL}
-                d="M 64 98 C 60 110, 58 124, 62 136 C 66 142, 60 148, 58 152"
-                stroke="#93c5fd"
-                strokeWidth="2.2"
-                fill="none"
-                strokeLinecap="round"
-              />
-              <circle cx="62" cy="136" r="2.8" fill="#ffffff" className={styles.tearDropL} />
+          <AnimatePresence>
+            {expression === "sad" && (
+              <motion.g
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                transition={{ duration: 0.32 }}
+              >
+                <g className={styles.tearsStream}>
+                  <path
+                    className={styles.tearL}
+                    d="M 64 98 C 60 110, 58 124, 62 136 C 66 142, 60 148, 58 152"
+                    stroke="#93c5fd"
+                    strokeWidth="2.2"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                  <circle cx="62" cy="136" r="2.8" fill="#ffffff" className={styles.tearDropL} />
 
-              <path
-                className={styles.tearR}
-                d="M 196 98 C 200 110, 202 124, 198 136 C 194 142, 200 148, 202 152"
-                stroke="#93c5fd"
-                strokeWidth="2.2"
-                fill="none"
-                strokeLinecap="round"
-              />
-              <circle cx="198" cy="136" r="2.8" fill="#ffffff" className={styles.tearDropR} />
-            </g>
-          )}
+                  <path
+                    className={styles.tearR}
+                    d="M 196 98 C 200 110, 202 124, 198 136 C 194 142, 200 148, 202 152"
+                    stroke="#93c5fd"
+                    strokeWidth="2.2"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                  <circle cx="198" cy="136" r="2.8" fill="#ffffff" className={styles.tearDropR} />
+                </g>
+              </motion.g>
+            )}
+          </AnimatePresence>
 
-          {/* Boca Anime */}
-          <AnimeMouth expression={expression} />
+          {/* Boca Anime con transición suave entre emociones */}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.g
+              key={expression}
+              initial={{ opacity: 0, scale: 0.93, y: 1.5 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.93, y: -1.5 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <AnimeMouth expression={expression} />
+            </motion.g>
+          </AnimatePresence>
         </g>
       </svg>
     </div>
